@@ -16,7 +16,8 @@ class event
     public DateTime $nextPlay;
     public $channel;
 
-    public function __construct($first, $message, $repeatEvery, $channel) {
+    public function __construct($first, $message, $repeatEvery, $channel)
+    {
         $this->first = $first;
         $this->message = $message;
         $this->repeatEvery = $repeatEvery;
@@ -24,14 +25,20 @@ class event
         $this->channel = $channel;
     }
 
-    public function calculateNext() {
-        $now = (new DateTime("now"))->getTimestamp()+10;
+    public function calculateNext()
+    {
+        $now = (new DateTime("now"))->getTimestamp() + 10;
         $first = $this->first->getTimestamp();
-        $difference = $now-$first;
-        $cycles = ceil($difference/$this->repeatEvery);
-        $this->nextPlay = $this->first;
-        $timeToAdd = $this->repeatEvery*$cycles;
-        $this->nextPlay->add(new DateInterval("PT{$timeToAdd}S"));
+        if ($first > $now) {
+            $this->nextPlay = $first;
+        } else {
+            $difference = $now - $first;
+            $cycles = ceil($difference / $this->repeatEvery);
+            $this->nextPlay = $this->first;
+            $timeToAdd = $this->repeatEvery * $cycles;
+            $this->nextPlay->add(new DateInterval("PT{$timeToAdd}S"));
+        }
+
     }
 
 

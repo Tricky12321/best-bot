@@ -32,10 +32,19 @@ $events[] = new event(new DateTime("2021-08-02T20:30:00+00:00"), "Trap in 30 min
 $events[] = new event(new DateTime("2021-08-02T20:55:00+00:00"), "Trap in 5 minutes! <@&784532360887664670>", 172800, 736237365600845915);
 $events[] = new event(new DateTime("2021-08-02T21:00:00+00:00"), "Trap now! <@&784532360887664670>", 172800, 736237365600845915);
 
+$events[] = new event(new DateTime("2021-08-05T20:00:00+00:00"), "Horde in 1 hour! <@&784532360887664670>", 1209600, 736237365600845915);
+$events[] = new event(new DateTime("2021-08-05T20:30:00+00:00"), "Horde in 30 minutes! <@&784532360887664670>", 1209600, 736237365600845915);
+$events[] = new event(new DateTime("2021-08-05T20:55:00+00:00"), "Horde in 5 minutes! <@&784532360887664670>", 1209600, 736237365600845915);
+$events[] = new event(new DateTime("2021-08-05T21:00:00+00:00"), "Horde now! <@&784532360887664670>", 1209600, 736237365600845915);
+
+$events[] = new event(new DateTime("2021-08-03T20:00:00+00:00"), "Horde in 1 hour! <@&784532360887664670>", 1209600, 736237365600845915);
+$events[] = new event(new DateTime("2021-08-03T20:30:00+00:00"), "Horde in 30 minutes! <@&784532360887664670>", 1209600, 736237365600845915);
+$events[] = new event(new DateTime("2021-08-03T20:55:00+00:00"), "Horde in 5 minutes! <@&784532360887664670>", 1209600, 736237365600845915);
+$events[] = new event(new DateTime("2021-08-03T21:00:00+00:00"), "Horde now! <@&784532360887664670>", 1209600, 736237365600845915);
+
 
 
 $discord->on('ready', function (Discord $discord) {
-
     Loop::addPeriodicTimer(1, function () {
         loop();
     });
