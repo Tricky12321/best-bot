@@ -21,13 +21,14 @@ class event
         $this->first = $first;
         $this->message = $message;
         $this->repeatEvery = $repeatEvery;
-        $this->calculateNext();
         $this->channel = $channel;
+        $this->calculateNext();
     }
 
     public function calculateNext()
     {
-        $now = (new DateTime("now"))->getTimestamp() + 10;
+        $now = (new DateTime("now"))->getTimestamp();
+
         $first = $this->first->getTimestamp();
         if ($first > $now) {
             $this->nextPlay = $this->first;
