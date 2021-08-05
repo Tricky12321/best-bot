@@ -1,0 +1,21 @@
+{
+    "name": "tricky/best-bot",
+    "type": "project",
+    "require": {
+        "ext-json": "*",
+        "ext-zlib": "*",
+        "team-reflex/discord-php": "dev-develop",
+        "ext-ev": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tricky\\BestBot\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Thue Vestergaard Iversen",
+            "email": "thue.v.iversen@gmail.com"
+        }
+    ]
+}
