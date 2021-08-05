@@ -30,7 +30,7 @@ class event
         $now = (new DateTime("now"))->getTimestamp() + 10;
         $first = $this->first->getTimestamp();
         if ($first > $now) {
-            $this->nextPlay = $first;
+            $this->nextPlay = $this->first;
         } else {
             $difference = $now - $first;
             $cycles = ceil($difference / $this->repeatEvery);
