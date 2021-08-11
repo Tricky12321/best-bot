@@ -4,7 +4,7 @@
 namespace Tricky\BestBot;
 
 
-use Cassandra\Date;
+
 use DateInterval;
 use DateTime;
 
@@ -27,20 +27,19 @@ class event
 
     public function calculateNext()
     {
-        $now = (new DateTime("now"))->getTimestamp();
+        if ($this->repeatEvery > 0) {
+            $now = (new DateTime("now"))->getTimestamp();
 
-        $first = $this->first->getTimestamp();
-        if ($first > $now) {
-            $this->nextPlay = $this->first;
-        } else {
-            $difference = $now - $first;
-            $cycles = ceil($difference / $this->repeatEvery);
-            $this->nextPlay = $this->first;
-            $timeToAdd = $this->repeatEvery * $cycles;
-            $this->nextPlay->add(new DateInterval("PT{$timeToAdd}S"));
+            $first = $this->first->getTimestamp();
+            if ($first > $now) {
+                $this->nextPlay = $this->first;
+            } else {
+                $difference = $now - $first;
+                $cycles = ceil($difference / $this->repeatEvery);
+                $this->nextPlay = $this->first;
+                $timeToAdd = $this->repeatEvery * $cycles;
+                $this->nextPlay->add(new DateInterval("PT{$timeToAdd}S"));
+            }
         }
-
     }
-
-
 }
