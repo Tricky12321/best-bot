@@ -58,6 +58,10 @@ function loadEvents()
     }
     $fileContent = file_get_contents($eventFile);
     $staticEvents = unserialize($fileContent);
+    /** @var event $staticEvent */
+    foreach ($staticEvents as $staticEvent) {
+        $staticEvent->calculateNext();
+    }
     $count = count($staticEvents);
     echo "Loaded {$count} events to {$eventFile}\n";
 }
@@ -94,17 +98,20 @@ function loop()
     /** @var event $event */
     foreach ($allEvents as $event) {
         if (isset($event)) {
-
-            // If the current timestamp is greater than the NextPlay timestamp the message needs to be sent
-            $timeToNext = (new DateTime("now"))->getTimestamp() - $event->nextPlay->getTimestamp();
-            if ($timeToNext >= 0) {
-                echo "Sending message\n";
-                //784532360887664670 StateOfSurvivalPlayer
-                $message = MessageBuilder::new()->setContent($event->message);
-                $discord->getChannel($event->channel)->sendMessage($message)->done(function (Message $message) {
-                    echo "Message sent!\n";
-                });
-                $event->calculateNext();
+            if (isset($event->nextPlay)) {
+                // If the current timestamp is greater than the NextPlay timestamp the message needs to be sent
+                $timeToNext = (new DateTime("now"))->getTimestamp() - $event->nextPlay->getTimestamp();
+                if ($timeToNext >= 0) {
+                    echo "Sending message\n";
+                    //784532360887664670 StateOfSurvivalPlayer
+                    $message = MessageBuilder::new()->setContent($event->message);
+                    $discord->getChannel($event->channel)->sendMessage($message)->done(function (Message $message) {
+                        echo "Message sent!\n";
+                    });
+                    $event->calculateNext();
+                }
+            } else {
+                echo "NO";
             }
         }
     }

@@ -4,7 +4,6 @@
 namespace Tricky\BestBot;
 
 
-
 use DateInterval;
 use DateTime;
 
@@ -27,13 +26,13 @@ class event
 
     public function calculateNext()
     {
-        if ($this->repeatEvery > 0) {
-            $now = (new DateTime("now"))->getTimestamp();
+        $now = (new DateTime("now"))->getTimestamp();
 
-            $first = $this->first->getTimestamp();
-            if ($first > $now) {
-                $this->nextPlay = $this->first;
-            } else {
+        $first = $this->first->getTimestamp();
+        if ($first > $now) {
+            $this->nextPlay = $this->first;
+        } else {
+            if ($this->repeatEvery > 0) {
                 $difference = $now - $first;
                 $cycles = ceil($difference / $this->repeatEvery);
                 $this->nextPlay = $this->first;
