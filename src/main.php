@@ -97,22 +97,16 @@ function loop()
     echo "loop\n";
     /** @var event $event */
     foreach ($allEvents as $event) {
-        if (isset($event)) {
-            if (isset($event->nextPlay)) {
-                // If the current timestamp is greater than the NextPlay timestamp the message needs to be sent
-                $timeToNext = (new DateTime("now"))->getTimestamp() - $event->nextPlay->getTimestamp();
-                if ($timeToNext >= 0) {
-                    echo "Sending message\n";
-                    //784532360887664670 StateOfSurvivalPlayer
-                    $message = MessageBuilder::new()->setContent($event->message);
-                    $discord->getChannel($event->channel)->sendMessage($message)->done(function (Message $message) {
-                        echo "Message sent!\n";
-                    });
-                    $event->calculateNext();
-                }
-            } else {
-                echo "NO";
-            }
+        // If the current timestamp is greater than the NextPlay timestamp the message needs to be sent
+        $timeToNext = (new DateTime("now"))->getTimestamp() - $event->nextPlay->getTimestamp();
+        if ($timeToNext >= 0) {
+            echo "Sending message\n";
+            //784532360887664670 StateOfSurvivalPlayer
+            $message = MessageBuilder::new()->setContent($event->message);
+            $discord->getChannel($event->channel)->sendMessage($message)->done(function (Message $message) {
+                echo "Message sent!\n";
+            });
+            $event->calculateNext();
         }
     }
 }
