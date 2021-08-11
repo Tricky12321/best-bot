@@ -92,7 +92,7 @@ function loop()
     $allEvents = array_merge($recuringEvents, $staticEvents);
     echo "loop\n";
     /** @var event $event */
-    foreach ($recuringEvents as $event) {
+    foreach ($allEvents as $event) {
         // If the current timestamp is greater than the NextPlay timestamp the message needs to be sent
         $timeToNext = (new DateTime("now"))->getTimestamp() - $event->nextPlay->getTimestamp();
         if ($timeToNext >= 0) {
