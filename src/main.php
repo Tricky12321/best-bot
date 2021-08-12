@@ -99,7 +99,7 @@ function loop()
     foreach ($allEvents as $event) {
         // If the current timestamp is greater than the NextPlay timestamp the message needs to be sent
         $timeToNext = (new DateTime("now"))->getTimestamp() - $event->nextPlay->getTimestamp();
-        if ($timeToNext >= 0) {
+        if ($timeToNext >= 0 && $event->repeatEvery > 0) {
             echo "Sending message\n";
             //784532360887664670 StateOfSurvivalPlayer
             $message = MessageBuilder::new()->setContent($event->message);
