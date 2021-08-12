@@ -12,7 +12,7 @@ class event
     public DateTime $first;
     public string $message;
     public $repeatEvery;
-    public DateTime $nextPlay;
+    public ?DateTime $nextPlay;
     public $channel;
 
     public function __construct($first, $message, $repeatEvery, $channel)
