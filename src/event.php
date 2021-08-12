@@ -38,6 +38,8 @@ class event
                 $this->nextPlay = $this->first;
                 $timeToAdd = $this->repeatEvery * $cycles;
                 $this->nextPlay->add(new DateInterval("PT{$timeToAdd}S"));
+            } else {
+                $this->nextPlay = null;
             }
         }
     }
