@@ -116,8 +116,11 @@ function loop()
 
 
 $help = [
+    "\n",
     "!bb ac {Control center number} {Protected time left, ex: 3:1:45 = 3 days, 1 hour and 45 minutes}",
-    "Format for date must contain days, hours and minutes. In case there is 0 days it must still be included as ex: 0:1:45 "
+    " - Format for date must contain days, hours and minutes. In case there is 0 days it must still be included as ex: 0:1:45",
+    "!bb kill",
+    " - Kills Best Bot in case it fails or starts spamming, this will not restart the bot, Contact Tricky!",
 ];
 
 $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $discord) {
@@ -168,6 +171,9 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                                 $message->reply("Invalid arguments, use !bb help to see how to use the commands!");
                             }
                         }
+                        break;
+                    case "kill":
+                        exit(0);
                         break;
                 }
             } else {
