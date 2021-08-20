@@ -123,15 +123,18 @@ $help = [
     " - Format for date must contain days, hours and minutes. In case there is 0 days it must still be included as ex: 0:1:45",
     "!bb kill",
     " - Kills Best Bot in case it fails or starts spamming, this will not restart the bot, Contact Tricky!",
+    "!bb delay {amount of events to delay} {Number of minutes to delays}",
+    "!bb events {See full list of upcomming events}",
 ];
 
 $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $discord) {
-    global $help, $staticEvents;
+    global $help, $staticEvents, $recuringEvents;
     $username = $message->author->username;
     $id = $message->author->user->id;
     $isModerator = $message->author->roles->has("737730859951718402");// 872546787360137246
     $content = $message->content;
     $isCommand = substr($content, 0, 3) === "!bb";
+    usort($recuringEvents,function($a, $b) {return event::cmp($a, $b);});
 
     // If not the bot continue
     if ($id != 872546787360137246) {
@@ -176,6 +179,33 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         break;
                     case "kill":
                         exit(1);
+                        break;
+                    case "delay":
+                        $count = $commands[2];
+                        $minutes = $commands[3];
+                        $period = new DateInterval("PT{$minutes}M");
+                        for ($i = 0; $i < $count; $i++) {
+                            /** @var event $event */
+                            $event = $recuringEvents[$i];
+                            //$event->nextPlay->add($period);
+                            echo "Added {$minutes} to \"$event->message\"";
+                            $message->reply( "Delayed \"$event->message\" by {$minutes} minutes");
+                        }
+                        break;
+                    case "events":
+                        $text = [
+                            "Events: "
+                            ];
+                        $count = 1;
+                        /** @var event $event */
+                        foreach ($recuringEvents as $event) {
+                            $text[] = "[{$count}] \"{$event->message}\" - {$event->nextPlay->format('c')}";
+                            $count++;
+                        }
+                        $message->reply(implode("\n",$text));
+                        break;
+                    default:
+                        $message->reply("Unknown command!");
                         break;
                 }
             } else {

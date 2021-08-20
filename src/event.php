@@ -43,4 +43,13 @@ class event
             }
         }
     }
+
+    /**
+     * @param $a event
+     * @param $b event
+     * @return int
+     */
+    public static function cmp($a, $b) {
+        return $a->nextPlay->getTimestamp() - $b->nextPlay->getTimestamp();
+    }
 }
