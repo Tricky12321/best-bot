@@ -124,7 +124,8 @@ $help = [
     "!bb kill",
     " - Kills Best Bot in case it fails or starts spamming, this will not restart the bot, Contact Tricky!",
     "!bb delay {amount of events to delay} {Number of minutes to delays}",
-    "!bb events {See full list of upcomming events}",
+    "!bb events",
+    " - See full list of upcomming events",
 ];
 
 $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $discord) {
