@@ -188,7 +188,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         for ($i = 0; $i < $count; $i++) {
                             /** @var event $event */
                             $event = $recuringEvents[$i];
-                            //$event->nextPlay->add($period);
+                            $event->nextPlay->add($period);
                             echo "Added {$minutes} to \"$event->message\"";
                             $message->reply( "Delayed \"$event->message\" by {$minutes} minutes");
                         }
