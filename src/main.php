@@ -12,6 +12,8 @@ use Discord\WebSockets\Intents;
 use React\EventLoop\Loop;
 use Tricky\BestBot\event;
 
+const BOT_ID = 872546787360137246;
+const MODERATOR_GROUP_ID = 737730859951718402;
 $config = require __DIR__ . "/config/config.php";
 /** @var Discord $discord */
 $discord = new Discord([
@@ -132,20 +134,21 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
     global $help, $staticEvents, $recuringEvents;
 
     $id = $message->author->user->id;
-    $isModerator = $message->author->roles->has("737730859951718402");// 872546787360137246
-    $content = $message->content;
-    // Only look at commands that start with !bb (best bot command prefix)
-    $isCommand = substr($content, 0, 3) === "!bb";
-    // Sort the events by how long there is till the event needs to trigger
-    usort($recuringEvents, function ($a, $b) {
-        return event::cmp($a, $b);
-    });
 
-    // If not the bot continue
-    if ($id != 872546787360137246) {
+
+    // If not the bot continue, The bot does not take it's own meesages into account
+    if ($id != BOT_ID) {
+        // Check if the user has the correct group
+        $isModerator = $message->author->roles->has(MODERATOR_GROUP_ID);
+        // Only look at commands that start with !bb (best bot command prefix)
+        $isCommand = substr($message->content, 0, 3) === "!bb";
+        // Sort the events by how long there is till the event needs to trigger
+        usort($recuringEvents, function ($a, $b) {
+            return event::cmp($a, $b);
+        });
         // Only check commands
         if ($isCommand) {
-            $commands = explode(" ", $content);
+            $commands = explode(" ", $message->content);
             $arguments = count($commands);
             if ($isModerator) {
                 switch ($commands[1]) {
@@ -156,6 +159,10 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         if ($arguments != 4) {
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
                         } else {
+                            if (!is_int($commands[2])) {
+                                $message->reply("AC number must be a number.");
+                                break;
+                            }
                             $acNumber = $commands[2];
                             $time = explode(":", $commands[3]);
                             if (count($time) === 3) {
@@ -163,14 +170,10 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                                 $minutesMinus60 = $minutes - 60;
                                 $minutesMinus30 = $minutes - 30;
                                 $minutesMinus5 = $minutes - 5;
-                                $timeAsIntervalNow = new DateInterval("PT{$minutes}M");
-                                $timeAsIntervalMinus60 = new DateInterval("PT{$minutesMinus60}M");
-                                $timeAsIntervalMinus30 = new DateInterval("PT{$minutesMinus30}M");
-                                $timeAsIntervalMinus5 = new DateInterval("PT{$minutesMinus5}M");
-                                $eventNow = (new DateTime("now"))->add($timeAsIntervalNow);
-                                $eventMinus60 = (new DateTime("now"))->add($timeAsIntervalMinus60);
-                                $eventMinus30 = (new DateTime("now"))->add($timeAsIntervalMinus30);
-                                $eventMinus5 = (new DateTime("now"))->add($timeAsIntervalMinus5);
+                                $eventNow = (new DateTime("now"))->add(getDatetimeInterval($minutes));
+                                $eventMinus60 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus60));
+                                $eventMinus30 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus30));
+                                $eventMinus5 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus5));
                                 $staticEvents[] = new event($eventMinus60, "AC$acNumber in 1 hour! <@&784532360887664670>", 0, 736237365600845915);
                                 $staticEvents[] = new event($eventMinus30, "AC$acNumber in 30 minutes! <@&784532360887664670>", 0, 736237365600845915);
                                 $staticEvents[] = new event($eventMinus5, "AC$acNumber in 5 minutes! <@&784532360887664670>", 0, 736237365600845915);
@@ -183,24 +186,37 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         }
                         break;
                     case "kill":
-
+                        if ($arguments != 2) {
+                            $message->reply("Invalid number of arguments, use \"!bb help\" for help");
+                        }
                         exit(1);
                         break;
                     case "delay":
-                        $count = $commands[2];
-                        $minutes = $commands[3];
-                        $period = new DateInterval("PT{$minutes}M");
-                        $text = [];
-                        for ($i = 0; $i < $count; $i++) {
-                            /** @var event $event */
-                            $event = $recuringEvents[$i];
-                            $event->nextPlay->add($period);
-                            echo "Added {$minutes} to \"$event->message\"\n";
-                            $text[] = "Delayed \"$event->message\" by {$minutes} minutes";
+                        if ($arguments != 4) {
+                            $message->reply("Invalid number of arguments, use \"!bb help\" for help");
                         }
-                        $message->reply(implode("\n", $text));
+                        if (is_int($commands[2]) && is_int($commands[3])) {
+                            $count = $commands[2];
+                            $minutes = $commands[3];
+                            $text = ["Events: "];
+                            for ($i = 0; $i < $count; $i++) {
+                                /** @var event $event */
+                                $event = $recuringEvents[$i];
+                                $event->nextPlay->add(getDatetimeInterval($minutes));
+                                echo "Added {$minutes} to \"$event->message\"\n";
+                                $text[] = "Delayed \"$event->message\" by {$minutes} minutes";
+                            }
+                            $message->reply(implode("\n", $text));
+                        } else {
+                            $message->reply("Wrong datatype for input.");
+
+                        }
+
                         break;
                     case "events":
+                        if ($arguments != 2) {
+                            $message->reply("Invalid number of arguments, use \"!bb help\" for help");
+                        }
                         $text = [
                             "Events: "
                         ];
@@ -213,7 +229,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         $message->reply(implode("\n", $text));
                         break;
                     default:
-                        $message->reply("Unknown command!");
+                        $message->reply("Unknown command - use \"!bb help\" for help!");
                         break;
                 }
             } else {
@@ -221,8 +237,12 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
             }
         }
     }
-    // Tricky: 157579105846558720
 });
+
+function getDatetimeInterval($minutes)
+{
+    return new DateInterval("PT{$minutes}M");
+}
 
 
 $discord->run();
