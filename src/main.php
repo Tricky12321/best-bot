@@ -130,12 +130,16 @@ $help = [
 
 $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $discord) {
     global $help, $staticEvents, $recuringEvents;
-    $username = $message->author->username;
+
     $id = $message->author->user->id;
     $isModerator = $message->author->roles->has("737730859951718402");// 872546787360137246
     $content = $message->content;
+    // Only look at commands that start with !bb (best bot command prefix)
     $isCommand = substr($content, 0, 3) === "!bb";
-    usort($recuringEvents,function($a, $b) {return event::cmp($a, $b);});
+    // Sort the events by how long there is till the event needs to trigger
+    usort($recuringEvents, function ($a, $b) {
+        return event::cmp($a, $b);
+    });
 
     // If not the bot continue
     if ($id != 872546787360137246) {
@@ -179,6 +183,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         }
                         break;
                     case "kill":
+
                         exit(1);
                         break;
                     case "delay":
@@ -193,19 +198,19 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                             echo "Added {$minutes} to \"$event->message\"\n";
                             $text[] = "Delayed \"$event->message\" by {$minutes} minutes";
                         }
-                        $message->reply( implode("\n", $text));
+                        $message->reply(implode("\n", $text));
                         break;
                     case "events":
                         $text = [
                             "Events: "
-                            ];
+                        ];
                         $count = 1;
                         /** @var event $event */
                         foreach ($recuringEvents as $event) {
                             $text[] = "[{$count}] \"{$event->message}\" - {$event->nextPlay->format('c')}";
                             $count++;
                         }
-                        $message->reply(implode("\n",$text));
+                        $message->reply(implode("\n", $text));
                         break;
                     default:
                         $message->reply("Unknown command!");
