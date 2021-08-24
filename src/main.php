@@ -189,8 +189,9 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                     case "kill":
                         if ($arguments != 2) {
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
+                        } else {
+                            exit(1);
                         }
-                        exit(1);
                         break;
                     case "delay":
                         if ($arguments != 4) {
