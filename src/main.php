@@ -160,10 +160,6 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         if ($arguments != 4) {
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
                         } else {
-                            if (!is_int($commands[2])) {
-                                $message->reply("AC number must be a number.");
-                                break;
-                            }
                             $acNumber = $commands[2];
                             $time = explode(":", $commands[3]);
                             if (count($time) === 3) {
