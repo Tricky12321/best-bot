@@ -226,6 +226,21 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         }
                         $message->reply(implode("\n", $text));
                         break;
+                    case "staticevents":
+                        if ($arguments != 2) {
+                            $message->reply("Invalid number of arguments, use \"!bb help\" for help");
+                        }
+                        $text = [
+                            "Events: "
+                        ];
+                        $count = 1;
+                        /** @var event $event */
+                        foreach ($staticEvents as $event) {
+                            $text[] = "[{$count}] \"{$event->message}\" - {$event->nextPlay->format('c')}";
+                            $count++;
+                        }
+                        $message->reply(implode("\n", $text));
+                        break;
                     case "rr":
                         if ($arguments != 3) {
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
