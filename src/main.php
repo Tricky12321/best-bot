@@ -122,7 +122,11 @@ function loop()
 
 $help = [
     "\n",
-    "!bb ac {Control center number} {Protected time left, ex: 3:1:45 = 3 days, 1 hour and 45 minutes}",
+    "!bb ac {Protected time left, ex: 3:1:45 = 3 days, 1 hour and 45 minutes}",
+    " - Format for date must contain days, hours and minutes. In case there is 0 days it must still be included as ex: 0:1:45",
+    "!bb rr {Time until start, ex: 3:1:45 = 3 days, 1 hour and 45 minutes}",
+    " - Format for date must contain days, hours and minutes. In case there is 0 days it must still be included as ex: 0:1:45",
+    "!bb cc {Time until start, ex: 3:1:45 = 3 days, 1 hour and 45 minutes}",
     " - Format for date must contain days, hours and minutes. In case there is 0 days it must still be included as ex: 0:1:45",
     "!bb kill",
     " - Kills Best Bot in case it fails or starts spamming, this will not restart the bot, Contact Tricky!",
