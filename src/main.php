@@ -196,8 +196,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                     case "delay":
                         if ($arguments != 4) {
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
-                        }
-                        if (is_int($commands[2]) && is_int($commands[3])) {
+                        } else {
                             $count = $commands[2];
                             $minutes = $commands[3];
                             $text = ["Events: "];
@@ -209,9 +208,6 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                                 $text[] = "Delayed \"$event->message\" by {$minutes} minutes";
                             }
                             $message->reply(implode("\n", $text));
-                        } else {
-                            $message->reply("Wrong datatype for input.");
-
                         }
 
                         break;
@@ -234,9 +230,9 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         if ($arguments != 3) {
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
                         } else {
-                            $acNumber = $commands[2];
-                            $time = explode(":", $commands[3]);
-                            if (count($time) === 3) {
+                            $time = explode(":", $commands[2]);
+                            $countTime = count($time) === 3;
+                            if ($countTime) {
                                 $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
                                 $minutesMinus60 = $minutes - 60;
                                 $minutesMinus30 = $minutes - 30;
@@ -260,8 +256,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         if ($arguments != 3) {
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
                         } else {
-                            $acNumber = $commands[2];
-                            $time = explode(":", $commands[3]);
+                            $time = explode(":", $commands[2]);
                             if (count($time) === 3) {
                                 $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
                                 $minutesMinus60 = $minutes - 60;
