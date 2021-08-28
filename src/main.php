@@ -149,7 +149,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
         });
         // Only check commands
         if ($isCommand) {
-            $commands = explode(" ", $message->content);
+            $commands = explode(" ", strtolower($message->content));
             $arguments = count($commands);
             if ($isModerator) {
                 switch ($commands[1]) {
@@ -229,6 +229,58 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                             $count++;
                         }
                         $message->reply(implode("\n", $text));
+                        break;
+                    case "rr":
+                        if ($arguments != 3) {
+                            $message->reply("Invalid number of arguments, use \"!bb help\" for help");
+                        } else {
+                            $acNumber = $commands[2];
+                            $time = explode(":", $commands[3]);
+                            if (count($time) === 3) {
+                                $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
+                                $minutesMinus60 = $minutes - 60;
+                                $minutesMinus30 = $minutes - 30;
+                                $minutesMinus5 = $minutes - 5;
+                                $eventNow = (new DateTime("now"))->add(getDatetimeInterval($minutes));
+                                $eventMinus60 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus60));
+                                $eventMinus30 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus30));
+                                $eventMinus5 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus5));
+                                $staticEvents[] = new event($eventMinus60, "Reservoir Raid in 1 hour! <@&784532360887664670>", 0, GENERAL_CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus30, "Reservoir Raid in 30 minutes! <@&784532360887664670>", 0, GENERAL_CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus5, "Reservoir Raid in 5 minutes, GET ONLINE NOW!! <@&784532360887664670>", 0, GENERAL_CHANNEL_ID);
+                                $staticEvents[] = new event($eventNow, "Reservoir Raid NOW!!!! <@&784532360887664670>", 0, GENERAL_CHANNEL_ID);
+                                saveEvents();
+                                $message->reply("Event created!");
+                            } else {
+                                $message->reply("Invalid arguments, use !bb help to see how to use the commands!");
+                            }
+                        }
+                        break;
+                    case "cc":
+                        if ($arguments != 3) {
+                            $message->reply("Invalid number of arguments, use \"!bb help\" for help");
+                        } else {
+                            $acNumber = $commands[2];
+                            $time = explode(":", $commands[3]);
+                            if (count($time) === 3) {
+                                $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
+                                $minutesMinus60 = $minutes - 60;
+                                $minutesMinus30 = $minutes - 30;
+                                $minutesMinus5 = $minutes - 5;
+                                $eventNow = (new DateTime("now"))->add(getDatetimeInterval($minutes));
+                                $eventMinus60 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus60));
+                                $eventMinus30 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus30));
+                                $eventMinus5 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus5));
+                                $staticEvents[] = new event($eventMinus60, "Capital Clash starts in 1 hour! <@&784532360887664670>", 0, GENERAL_CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus30, "Capital Clash starts in 30 minutes! <@&784532360887664670>", 0, GENERAL_CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus5, "Capital Clash starts in 5 minutes <@&784532360887664670>", 0, GENERAL_CHANNEL_ID);
+                                $staticEvents[] = new event($eventNow, "Capital Clash starts NOW!!!!! <@&784532360887664670>", 0, GENERAL_CHANNEL_ID);
+                                saveEvents();
+                                $message->reply("Event created!");
+                            } else {
+                                $message->reply("Invalid arguments, use !bb help to see how to use the commands!");
+                            }
+                        }
                         break;
                     default:
                         $message->reply("Unknown command - use \"!bb help\" for help!");
