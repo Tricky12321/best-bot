@@ -150,7 +150,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
         // Check if the user has the correct group
         $isModerator = $message->author->roles->has(MODERATOR_GROUP_ID);
         // Only look at commands that start with !bb (best bot command prefix)
-        $isCommand = substr($message->content, 0, 3) === "!bb";
+        $isCommand = substr(strtolower($message->content), 0, 3) === "!bb";
         // Sort the events by how long there is till the event needs to trigger
         usort($recuringEvents, function ($a, $b) {
             return event::cmp($a, $b);
