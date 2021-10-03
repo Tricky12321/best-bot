@@ -35,24 +35,24 @@ $discord->on('ready', function ($discord) {
 
 
 /** @var array event $events */
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:00:00+02:00"), "Trap in 1 hour! <@&".PLAYER.">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:30:00+02:00"), "Trap in 30 minutes! <@&".PLAYER.">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:55:00+02:00"), "Trap in 5 minutes! <@&".PLAYER.">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T21:00:00+02:00"), "Trap now! <@&".PLAYER.">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:00:00+02:00"), "Trap in 1 hour! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:30:00+02:00"), "Trap in 30 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:55:00+02:00"), "Trap in 5 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T21:00:00+02:00"), "Trap now! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
 
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:00:00+02:00"), "Horde in 1 hour! <@&".PLAYER.">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:30:00+02:00"), "Horde in 30 minutes! <@&".PLAYER.">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:55:00+02:00"), "Horde in 5 minutes! <@&".PLAYER.">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T21:00:00+02:00"), "Horde now! <@&".PLAYER.">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:00:00+02:00"), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:30:00+02:00"), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:55:00+02:00"), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T21:00:00+02:00"), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
 
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:00:00+02:00"), "Horde in 1 hour! <@&".PLAYER.">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:30:00+02:00"), "Horde in 30 minutes! <@&".PLAYER.">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:55:00+02:00"), "Horde in 5 minutes! <@&".PLAYER.">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T21:00:00+02:00"), "Horde now! <@&".PLAYER.">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:00:00+02:00"), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:30:00+02:00"), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:55:00+02:00"), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T21:00:00+02:00"), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
 
 $staticEvents = [];
 
-$eventFile = __DIR__ . "/events.txt";
+$eventFile = __DIR__ . "/storage/events.txt";
 
 function loadEvents()
 {
@@ -179,10 +179,10 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                                 $eventMinus60 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus60));
                                 $eventMinus30 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus30));
                                 $eventMinus5 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus5));
-                                $staticEvents[] = new event($eventMinus60, "AC$acNumber in 1 hour! <@&".PLAYER.">", 0, CHANNEL_ID);
-                                $staticEvents[] = new event($eventMinus30, "AC$acNumber in 30 minutes! <@&".PLAYER.">", 0, CHANNEL_ID);
-                                $staticEvents[] = new event($eventMinus5, "AC$acNumber in 5 minutes! <@&".PLAYER.">", 0, CHANNEL_ID);
-                                $staticEvents[] = new event($eventNow, "AC$acNumber now! <@&".PLAYER.">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus60, "AC$acNumber in 1 hour! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus30, "AC$acNumber in 30 minutes! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus5, "AC$acNumber in 5 minutes! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventNow, "AC$acNumber now! <@&" . PLAYER . ">", 0, CHANNEL_ID);
                                 saveEvents();
                                 $message->reply("Event created!");
                             } else {
@@ -202,14 +202,19 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
                         } else {
                             $count = $commands[2];
-                            $minutes = $commands[3];
+                            $minutes = intval($commands[3]);
                             $text = ["Events: "];
                             for ($i = 0; $i < $count; $i++) {
                                 /** @var event $event */
                                 $event = $recuringEvents[$i];
-                                $event->nextPlay->add(getDatetimeInterval($minutes));
-                                echo "Added {$minutes} to \"$event->message\"\n";
-                                $text[] = "Delayed \"$event->message\" by {$minutes} minutes";
+                                if ($minutes > 0) {
+                                    $event->nextPlay->add(getDatetimeInterval(abs($minutes)));
+                                } elseif ($minutes < 0) {
+                                    $event->nextPlay->sub(getDatetimeInterval(abs($minutes)));
+
+                                }
+                                echo "Changed \"$event->message\" by {$minutes}\n";
+                                $text[] = "Changed \"$event->message\" by {$minutes} minutes";
                             }
                             $message->reply(implode("\n", $text));
                         }
@@ -260,10 +265,10 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                                 $eventMinus60 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus60));
                                 $eventMinus30 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus30));
                                 $eventMinus5 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus5));
-                                $staticEvents[] = new event($eventMinus60, "Reservoir Raid in 1 hour! <@&".PLAYER.">", 0, CHANNEL_ID);
-                                $staticEvents[] = new event($eventMinus30, "Reservoir Raid in 30 minutes! <@&".PLAYER.">", 0, CHANNEL_ID);
-                                $staticEvents[] = new event($eventMinus5, "Reservoir Raid in 5 minutes, GET ONLINE NOW!! <@&".PLAYER.">", 0, CHANNEL_ID);
-                                $staticEvents[] = new event($eventNow, "Reservoir Raid NOW!!!! <@&".PLAYER.">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus60, "Reservoir Raid in 1 hour! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus30, "Reservoir Raid in 30 minutes! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus5, "Reservoir Raid in 5 minutes, GET ONLINE NOW!! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventNow, "Reservoir Raid NOW!!!! <@&" . PLAYER . ">", 0, CHANNEL_ID);
                                 saveEvents();
                                 $message->reply("Event created!");
                             } else {
@@ -285,9 +290,9 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                                 $eventMinus60 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus60));
                                 $eventMinus30 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus30));
                                 $eventMinus5 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus5));
-                                $staticEvents[] = new event($eventMinus60, "Capital Clash starts in 1 hour! <@&".PLAYER.">", 0, CHANNEL_ID);
-                                $staticEvents[] = new event($eventMinus30, "Capital Clash starts in 30 minutes! <@&".PLAYER.">", 0, CHANNEL_ID);
-                                $staticEvents[] = new event($eventMinus5, "Capital Clash starts in 5 minutes <@&".PLAYER.">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus60, "Capital Clash starts in 1 hour! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus30, "Capital Clash starts in 30 minutes! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus5, "Capital Clash starts in 5 minutes <@&" . PLAYER . ">", 0, CHANNEL_ID);
                                 $staticEvents[] = new event($eventNow, "Capital Clash starts NOW!!!!! <@&784532360887664670>", 0, CHANNEL_ID);
                                 saveEvents();
                                 $message->reply("Event created!");
