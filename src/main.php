@@ -253,6 +253,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                     case "time":
                         $time = new DateTime("now");
                         $message->reply("Current time: ".$time->format("c"));
+                        break;
                     case "rr":
                         if ($arguments != 3) {
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
