@@ -17,6 +17,7 @@ const BOT_ID = 872546787360137246;
 const MODERATOR_GROUP_ID = 737730859951718402;
 const CHANNEL_ID = 886218298516209664;
 const PLAYER = "784532360887664670";
+const TRICKY = 157579105846558720;
 // ----------------------------------------------------------------
 $config = require __DIR__ . "/config/config.php";
 /** @var Discord $discord */
@@ -32,23 +33,21 @@ $discord->on('ready', function ($discord) {
         echo "{$message->author->username}: {$message->content}", PHP_EOL;
     });
 });
-
-
+date_default_timezone_set('Europe/Copenhagen');
+$timezone = new DateTimeZone("Europe/Copenhagen");
 /** @var array event $events */
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:00:00+02:00"), "Trap in 1 hour! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:30:00+02:00"), "Trap in 30 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:55:00+02:00"), "Trap in 5 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T21:00:00+02:00"), "Trap now! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:00:00+02:00"), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:30:00+02:00"), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:55:00+02:00"), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T21:00:00+02:00"), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:00:00+02:00"), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:30:00+02:00"), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:55:00+02:00"), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T21:00:00+02:00"), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:00:00+01:00",$timezone), "Trap in 1 hour! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:30:00+01:00",$timezone), "Trap in 30 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:55:00+01:00",$timezone), "Trap in 5 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T21:00:00+01:00",$timezone), "Trap now! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:00:00+01:00",$timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:30:00+01:00",$timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:55:00+01:00",$timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T21:00:00+01:00",$timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:00:00+01:00",$timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:30:00+01:00",$timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:55:00+01:00",$timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T21:00:00+01:00",$timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
 
 $staticEvents = [];
 
@@ -149,6 +148,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
     if ($id != BOT_ID) {
         // Check if the user has the correct group
         $isModerator = $message->author->roles->has(MODERATOR_GROUP_ID);
+        $isTricky = $message->author->id == TRICKY;
         // Only look at commands that start with !bb (best bot command prefix)
         $isCommand = substr(strtolower($message->content), 0, 3) === "!bb";
         // Sort the events by how long there is till the event needs to trigger
@@ -303,6 +303,13 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                             } else {
                                 $message->reply("Invalid arguments, use !bb help to see how to use the commands!");
                             }
+                        }
+                        break;
+                    case "beat":
+                        if ($isTricky) {
+                            $message->reply("Tricky beat the shit out of me because I acted like Bad-Bot");
+                        } else {
+                            $message->reply("Only Tricky is allowed to beat me!");
                         }
                         break;
                     default:
