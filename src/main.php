@@ -36,18 +36,18 @@ $discord->on('ready', function ($discord) {
 date_default_timezone_set('Europe/Copenhagen');
 $timezone = new DateTimeZone("Europe/Copenhagen");
 /** @var array event $events */
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:00:00+01:00",$timezone), "Trap in 1 hour! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:30:00+01:00",$timezone), "Trap in 30 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:55:00+01:00",$timezone), "Trap in 5 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T21:00:00+01:00",$timezone), "Trap now! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:00:00+01:00",$timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:30:00+01:00",$timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:55:00+01:00",$timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T21:00:00+01:00",$timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:00:00+01:00",$timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:30:00+01:00",$timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:55:00+01:00",$timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T21:00:00+01:00",$timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:00:00+02:00",$timezone), "Trap in 1 hour! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:30:00+02:00",$timezone), "Trap in 30 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:55:00+02:00",$timezone), "Trap in 5 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T21:00:00+02:00",$timezone), "Trap now! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:00:00+02:00",$timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:30:00+02:00",$timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:55:00+02:00",$timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T21:00:00+02:00",$timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:00:00+02:00",$timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:30:00+02:00",$timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:55:00+02:00",$timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T21:00:00+02:00",$timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
 
 $staticEvents = [];
 
