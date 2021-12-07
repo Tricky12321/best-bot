@@ -254,6 +254,36 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         $time = new DateTime("now");
                         $message->reply("Current time: ".$time->format("c"));
                         break;
+                    case "ke":
+                        if ($arguments != 3) {
+                            $message->reply("Invalid number of arguments, use \"!bb help\" for help");
+                        } else {
+                            $time = explode(":", $commands[2]);
+                            $countTime = count($time) === 3;
+                            if ($countTime) {
+                                $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
+                                $minutesMinus60 = $minutes - 60;
+                                $event24hour = $minutes - (60*24);
+                                $event3hour = $minutes - (60*3);
+                                $eventNow = (new DateTime("now"))->add(getDatetimeInterval($minutes));
+                                $eventMinus60 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus60));
+                                $eventMinus24hour = (new DateTime("now"))->add(getDatetimeInterval($event24hour));
+                                $eventMinus48hour = (new DateTime("now"))->add(getDatetimeInterval($event24hour*2));
+                                $eventMinus6hour = (new DateTime("now"))->add(getDatetimeInterval($event3hour*2));
+                                $eventMinus3hour = (new DateTime("now"))->add(getDatetimeInterval($event3hour));
+                                $staticEvents[] = new event($eventNow, "KILL EVENT HAS STARTED, LAST CHANCE TO FLARE! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus60, "KILL EVENT STARTS IN 1 HOUR, FLARE NOW!! <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus3hour, "KILL EVENT STARTS IN 3 HOURS <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus6hour, "KILL EVENT STARTS IN 6 HOURS <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus24hour, "KILL EVENT STARTS IN 24 HOURS <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                $staticEvents[] = new event($eventMinus48hour, "KILL EVENT STARTS IN 48 HOURS <@&" . PLAYER . ">", 0, CHANNEL_ID);
+                                saveEvents();
+                                $message->reply("Event created!");
+                            } else {
+                                $message->reply("Invalid arguments, use !bb help to see how to use the commands!");
+                            }
+                        }
+                        break;
                     case "rr":
                         if ($arguments != 3) {
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
