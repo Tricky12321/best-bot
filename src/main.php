@@ -6,6 +6,7 @@ use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Channel\Channel;
 use Discord\Parts\Channel\Message;
+use Discord\Parts\Channel\Reaction;
 use Discord\Parts\Guild\Guild;
 use Discord\WebSockets\Event as DiscordEvent;
 use Discord\WebSockets\Intents;
@@ -86,12 +87,17 @@ function saveEvents()
     echo "Saved {$count} events to {$eventFile}\n";
 }
 
-$discord->on('ready', function (Discord $discord) {
+$discord->on(DiscordEvent::READY, function (Discord $discord) {
+    echo "";
     loadEvents();
     Loop::addPeriodicTimer(10, function () {
         loop();
     });
 
+});
+
+$discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (Reaction $reaction, Discord $discord) {
+echo "Reaction added";
 });
 
 function loop()
