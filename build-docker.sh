@@ -1,1 +1,1 @@
-docker build . -t tvi/translate --platform linux/amd64;
+docker build . -t tvi/translate

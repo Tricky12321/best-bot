@@ -10,17 +10,18 @@ RUN apt update && apt install -y \
     zip \
     libzip-dev \
     procps \
-    libuv1 \
-    libuv1-dev
+    dlang-libevent
 
 RUN mkdir /best-bot
 WORKDIR /best-bot
 
 RUN pecl install xdebug
+RUN docker-php-ext-install sockets
+RUN pecl install event
 RUN docker-php-ext-install zip
 RUN docker-php-ext-enable xdebug
 RUN pear config-set preferred_state beta
-RUN pecl install uv
+
 
 ADD src /best-bot/src
 ADD vendor /best-bot/vendor

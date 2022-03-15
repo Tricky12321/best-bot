@@ -4,9 +4,9 @@
   "require": {
     "ext-json": "*",
     "ext-zlib": "*",
-    "team-reflex/discord-php": "dev-develop",
+    "team-reflex/discord-php": "dev-master",
     "php-webdriver/webdriver": "^1.12",
-    "ext-uv": "*"
+    "ext-mbstring": "*"
   },
   "autoload": {
     "psr-4": {

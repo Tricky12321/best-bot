@@ -24,7 +24,6 @@ $config = require __DIR__ . "/config/config.php";
 /** @var Discord $discord */
 $discord = new Discord([
     'token' => $config["key"],
-    'intents' => Intents::getDefaultIntents(),
 ]);
 
 $discord->on('ready', function ($discord) {
@@ -87,18 +86,18 @@ function saveEvents()
     echo "Saved {$count} events to {$eventFile}\n";
 }
 
-$discord->on(DiscordEvent::READY, function (Discord $discord) {
-    echo "";
+$discord->on("ready", function (Discord $discord) {
     loadEvents();
+    $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (Reaction $reaction, Discord $discord) {
+        echo "Reaction added";
+    });
     Loop::addPeriodicTimer(10, function () {
         loop();
     });
 
 });
 
-$discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (Reaction $reaction, Discord $discord) {
-echo "Reaction added";
-});
+
 
 function loop()
 {
@@ -366,3 +365,8 @@ function getDatetimeInterval($minutes)
 
 
 $discord->run();
+
+while(true) {
+    echo "";
+    sleep(1);
+}
