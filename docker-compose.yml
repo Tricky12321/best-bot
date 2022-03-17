@@ -9,7 +9,7 @@ services:
       - "7900:7900"
   php:
     platform: linux/amd64
-    image: tvi/translate
+    image: bestbot
     links:
       - selenium
     depends_on:

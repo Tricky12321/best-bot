@@ -8,6 +8,7 @@ use Discord\Parts\Channel\Channel;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Channel\Reaction;
 use Discord\Parts\Guild\Guild;
+use Discord\Parts\WebSockets\MessageReaction;
 use Discord\WebSockets\Event as DiscordEvent;
 use Discord\WebSockets\Intents;
 use React\EventLoop\Loop;
@@ -24,6 +25,7 @@ $config = require __DIR__ . "/config/config.php";
 /** @var Discord $discord */
 $discord = new Discord([
     'token' => $config["key"],
+    'intents' => Intents::getDefaultIntents(),
 ]);
 
 $discord->on('ready', function ($discord) {
@@ -36,18 +38,18 @@ $discord->on('ready', function ($discord) {
 date_default_timezone_set('Europe/Copenhagen');
 $timezone = new DateTimeZone("Europe/Copenhagen");
 /** @var array event $events */
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:00:00+02:00",$timezone), "Trap in 1 hour! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:30:00+02:00",$timezone), "Trap in 30 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T20:55:00+02:00",$timezone), "Trap in 5 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-02T21:00:00+02:00",$timezone), "Trap now! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:00:00+02:00",$timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:30:00+02:00",$timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T20:55:00+02:00",$timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-05T21:00:00+02:00",$timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:00:00+02:00",$timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:30:00+02:00",$timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T20:55:00+02:00",$timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
-$recuringEvents[] = new event(new DateTime("2021-08-03T21:00:00+02:00",$timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:00:00+02:00", $timezone), "Trap in 1 hour! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:30:00+02:00", $timezone), "Trap in 30 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T20:55:00+02:00", $timezone), "Trap in 5 minutes! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-02T21:00:00+02:00", $timezone), "Trap now! <@&" . PLAYER . ">", 172800, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:00:00+02:00", $timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:30:00+02:00", $timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T20:55:00+02:00", $timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-05T21:00:00+02:00", $timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:00:00+02:00", $timezone), "Horde in 1 hour! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:30:00+02:00", $timezone), "Horde in 30 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T20:55:00+02:00", $timezone), "Horde in 5 minutes! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
+$recuringEvents[] = new event(new DateTime("2021-08-03T21:00:00+02:00", $timezone), "Horde now! <@&" . PLAYER . ">", 1209600, CHANNEL_ID);
 
 $staticEvents = [];
 
@@ -87,17 +89,49 @@ function saveEvents()
 }
 
 $discord->on("ready", function (Discord $discord) {
-    loadEvents();
-    $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (Reaction $reaction, Discord $discord) {
-        echo "Reaction added";
-    });
-    Loop::addPeriodicTimer(10, function () {
-        loop();
+    //Loop::addPeriodicTimer(10, function () {
+    //    loop();
+    //});
+
+});
+
+$discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reaction, Discord $discord) {
+    $messageId = $reaction->message_id;
+    $discord->getChannel($reaction->channel_id)->messages->fetch($messageId, true)->done(function (Message $message) use ($reaction) {
+        $emojiName = $reaction->emoji->name;
+        $messageText = $message->content;
+        $lang = "en";
+        switch ($emojiName) {
+            case "🇺🇸":
+            case "🇦🇺":
+            case "🏴󠁧󠁢󠁥󠁮󠁧󠁿":
+                $lang = "en";
+                break;
+            case "🇮🇹":
+                $lang = "it";
+                break;
+            case "🇷🇺":
+                $lang = "ru";
+                break;
+            case "🇪🇸":
+                $lang = "es";
+                break;
+            case "🇩🇪":
+                $lang = "de";
+                break;
+        }
     });
 
 });
 
+$runtime = new \parallel\Runtime();
 
+$future = $runtime->run(function(){
+    for ($i = 0; $i < 500; $i++)
+        echo "*";
+
+    return "easy";
+});
 
 function loop()
 {
@@ -257,7 +291,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         break;
                     case "time":
                         $time = new DateTime("now");
-                        $message->reply("Current time: ".$time->format("c"));
+                        $message->reply("Current time: " . $time->format("c"));
                         break;
                     case "ke":
                         if ($arguments != 3) {
@@ -268,13 +302,13 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                             if ($countTime) {
                                 $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
                                 $minutesMinus60 = $minutes - 60;
-                                $event24hour = $minutes - (60*24);
-                                $event3hour = $minutes - (60*3);
+                                $event24hour = $minutes - (60 * 24);
+                                $event3hour = $minutes - (60 * 3);
                                 $eventNow = (new DateTime("now"))->add(getDatetimeInterval($minutes));
                                 $eventMinus60 = (new DateTime("now"))->add(getDatetimeInterval($minutesMinus60));
                                 $eventMinus24hour = (new DateTime("now"))->add(getDatetimeInterval($event24hour));
-                                $eventMinus48hour = (new DateTime("now"))->add(getDatetimeInterval($event24hour*2));
-                                $eventMinus6hour = (new DateTime("now"))->add(getDatetimeInterval($event3hour*2));
+                                $eventMinus48hour = (new DateTime("now"))->add(getDatetimeInterval($event24hour * 2));
+                                $eventMinus6hour = (new DateTime("now"))->add(getDatetimeInterval($event3hour * 2));
                                 $eventMinus3hour = (new DateTime("now"))->add(getDatetimeInterval($event3hour));
                                 $staticEvents[] = new event($eventNow, "KILL EVENT HAS STARTED, LAST CHANCE TO FLARE! <@&" . PLAYER . ">", 0, CHANNEL_ID);
                                 $staticEvents[] = new event($eventMinus60, "KILL EVENT STARTS IN 1 HOUR, FLARE NOW!! <@&" . PLAYER . ">", 0, CHANNEL_ID);
@@ -366,7 +400,3 @@ function getDatetimeInterval($minutes)
 
 $discord->run();
 
-while(true) {
-    echo "";
-    sleep(1);
-}

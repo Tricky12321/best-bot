@@ -4,7 +4,7 @@
   "require": {
     "ext-json": "*",
     "ext-zlib": "*",
-    "team-reflex/discord-php": "dev-master",
+    "team-reflex/discord-php": "*",
     "php-webdriver/webdriver": "^1.12",
     "ext-mbstring": "*"
   },
