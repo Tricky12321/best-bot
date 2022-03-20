@@ -13,20 +13,46 @@ use Discord\WebSockets\Event as DiscordEvent;
 use Discord\WebSockets\Intents;
 use React\EventLoop\Loop;
 use Tricky\BestBot\event;
+use Tricky\BestBot\Lock;
+use Tricky\BestBot\seleniumWrapper;
 
 // ----------------------------------------------------------------
-const BOT_ID = 872546787360137246;
-const MODERATOR_GROUP_ID = 737730859951718402;
-const CHANNEL_ID = 886218298516209664;
-const PLAYER = "784532360887664670";
-const TRICKY = 157579105846558720;
+const INPUT_STACK_LOCK = "BB_INPUT_STACK_LOCK";
+const OUTPUT_STACK_LOCK = "BB_OUTPUT_STACK_LOCK";
+const INPUT_STACK_ID = 1;
+const OUTPUT_STACK_ID = 2;
+const INPUT_FILE = ".input";
+const OUTPUT_FILE = ".output";
 // ----------------------------------------------------------------
+const BOT_ID = "872546787360137246";
+const MODERATOR_GROUP_ID = "737730859951718402";
+const CHANNEL_ID = "886218298516209664";
+const PLAYER = "784532360887664670";
+const TRICKY = "157579105846558720";
+// ----------------------------------------------------------------
+$seleniumRunning = true;
+// ----------------------------------------------------------------
+
+$pid = pcntl_fork();
+if ($pid == -1) {
+    die('could not fork');
+} else {
+    if ($pid) {
+        // Parrent
+    } else {
+        // Child
+        seleniumTranslatorRun();
+    }
+}
+
+$translated = [];
+
 $config = require __DIR__ . "/config/config.php";
 /** @var Discord $discord */
 $discord = new Discord([
-    'token' => $config["key"],
-    'intents' => Intents::getDefaultIntents(),
-]);
+                           'token'   => $config["key"],
+                           'intents' => Intents::getDefaultIntents(),
+                       ]);
 
 $discord->on('ready', function ($discord) {
     echo "Bot is ready!", PHP_EOL;
@@ -89,15 +115,17 @@ function saveEvents()
 }
 
 $discord->on("ready", function (Discord $discord) {
-    //Loop::addPeriodicTimer(10, function () {
-    //    loop();
-    //});
-
+    Loop::addPeriodicTimer(10, function () {
+        loop();
+    });
 });
+
+$translatedMessages = [];
 
 $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reaction, Discord $discord) {
     $messageId = $reaction->message_id;
     $discord->getChannel($reaction->channel_id)->messages->fetch($messageId, true)->done(function (Message $message) use ($reaction) {
+        global $translatedMessages;
         $emojiName = $reaction->emoji->name;
         $messageText = $message->content;
         $lang = "en";
@@ -105,33 +133,95 @@ $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reac
             case "🇺🇸":
             case "🇦🇺":
             case "🏴󠁧󠁢󠁥󠁮󠁧󠁿":
+            case "🇬🇧":
+                echo "Detected English emoji\n";
                 $lang = "en";
                 break;
             case "🇮🇹":
+                echo "Detected Italian emoji\n";
                 $lang = "it";
                 break;
             case "🇷🇺":
+                echo "Detected Russian emoji\n";
                 $lang = "ru";
                 break;
             case "🇪🇸":
+                echo "Detected Spanish emoji\n";
                 $lang = "es";
                 break;
             case "🇩🇪":
+                echo "Detected German emoji\n";
                 $lang = "de";
                 break;
+            case "🇵🇹":
+                echo "Detected Portuguese emoji\n";
+                $lang = "pt";
+                break;
+            case "🇫🇷":
+                echo "Detected French emoji\n";
+                $lang = "fr";
+                break;
+        }
+        if (strlen($messageText) > 1950) {
+            $reaction->message->reply("This message is too long to be translated, sorry!");
+        } else {
+            if (!in_array("{$lang}{$reaction->message_id}", $translatedMessages)) {
+                $translatedMessages[] = "{$lang}{$reaction->message_id}";
+                $translation = new \Tricky\BestBot\message($messageText, $lang, $reaction->channel_id, $reaction->message_id);
+                // Lock inputStack and add the message to the input stack
+                $lock = Lock::getLock(INPUT_STACK_LOCK, true);
+                $inputStack = loadMessages(INPUT_FILE);
+                array_push($inputStack, $translation);
+                saveMessages(INPUT_FILE, $inputStack);
+                Lock::freeLock($lock);
+            }
         }
     });
-
 });
 
-$runtime = new \parallel\Runtime();
 
-$future = $runtime->run(function(){
-    for ($i = 0; $i < 500; $i++)
-        echo "*";
+function seleniumTranslatorRun()
+{
+    global $seleniumRunning;
+    echo "\nNew thread is started and running\n";
+    $selenium = new seleniumWrapper();
+    echo "Starting Selenium Looper\n";
+    do {
+        /** @var \Tricky\BestBot\message|null $elem */
+        $elem = null;
 
-    return "easy";
-});
+
+        // CRITICAL REGION [START]
+        $lock = Lock::getLock(INPUT_STACK_LOCK, true);
+        $inputStack = loadMessages(INPUT_FILE);
+        echo "Count of input: " . count($inputStack) . "\n";
+        if (count($inputStack) > 0) {
+            $elem = array_shift($inputStack);
+            saveMessages(INPUT_FILE, $inputStack);
+        }
+        Lock::freeLock($lock);
+        // CRITICAL REGION [END]
+
+
+        if ($elem != null) {
+            $selenium->getPage($elem->getTranslationUrl());
+            $elem->translatedMessage = $selenium->translate($elem->getOriginalMessage());
+            // Add the output to the outputStack
+
+            // CRITICAL REGION [START]
+            $lock = Lock::getLock(OUTPUT_STACK_LOCK, true);
+            $outputStack = loadMessages(OUTPUT_FILE);
+            array_push($outputStack, $elem);
+            saveMessages(OUTPUT_FILE, $outputStack);
+            Lock::freeLock($lock);
+            // CRITICAL REGION [END]
+
+        } else {
+            sleep(2);
+        }
+    } while ($seleniumRunning);
+}
+
 
 function loop()
 {
@@ -154,6 +244,20 @@ function loop()
             }
         }
     }
+    $lock = Lock::getLock(OUTPUT_STACK_LOCK);
+    $output = loadMessages(OUTPUT_FILE);
+    // Clear the output!
+    saveMessages(OUTPUT_FILE, []);
+
+    Lock::freeLock($lock);
+    /** @var \Tricky\BestBot\message $message */
+    foreach ($output as $message) {
+        $discord->getChannel($message->channel_id)->messages->fetch($message->message_id)->done(function (Message $discordMessage) use ($message) {
+            $discordMessage->reply(MessageBuilder::new()->setContent("Translated message [{$message->translateToLang}]\n\n" . $message->translatedMessage));
+        });
+    }
+
+
 }
 
 
@@ -180,13 +284,13 @@ $help = [
 $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $discord) {
     global $help, $staticEvents, $recuringEvents;
 
-    $id = $message->author->user->id;
+    $id = $message->author->id;
 
 
     // If not the bot continue, The bot does not take it's own meesages into account
     if ($id != BOT_ID) {
         // Check if the user has the correct group
-        $isModerator = $message->author->roles->has(MODERATOR_GROUP_ID);
+        $isModerator = $message->member->roles->has(MODERATOR_GROUP_ID);
         $isTricky = $message->author->id == TRICKY;
         // Only look at commands that start with !bb (best bot command prefix)
         $isCommand = substr(strtolower($message->content), 0, 3) === "!bb";
@@ -264,7 +368,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
                         }
                         $text = [
-                            "Events: "
+                            "Events: ",
                         ];
                         $count = 1;
                         /** @var event $event */
@@ -279,7 +383,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                             $message->reply("Invalid number of arguments, use \"!bb help\" for help");
                         }
                         $text = [
-                            "Events: "
+                            "Events: ",
                         ];
                         $count = 1;
                         /** @var event $event */
@@ -397,6 +501,22 @@ function getDatetimeInterval($minutes)
     return new DateInterval("PT{$minutes}M");
 }
 
+function saveMessages($file, $content)
+{
+    file_put_contents($file, serialize($content));
+}
+
+function loadMessages($file): array
+{
+    if (file_exists($file)) {
+        return unserialize(file_get_contents($file));
+    } else {
+        return [];
+    }
+
+}
+
 
 $discord->run();
+
 

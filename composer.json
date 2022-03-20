@@ -6,7 +6,9 @@
     "ext-zlib": "*",
     "team-reflex/discord-php": "*",
     "php-webdriver/webdriver": "^1.12",
-    "ext-mbstring": "*"
+    "ext-mbstring": "*",
+    "ext-pcntl": "*",
+    "ext-shmop": "*"
   },
   "autoload": {
     "psr-4": {

@@ -10,10 +10,10 @@ $serverUrl = "http://selenium:4444";
 $driver = RemoteWebDriver::create($serverUrl, DesiredCapabilities::chrome());
 $driver->get("https://translate.google.com/?sl=auto&tl=en&op=translate");
 sleep(5);
-$acceptButotn = $driver->findElement(
+$acceptButton = $driver->findElement(
     WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > form > div > div > button > span')
 );
-$acceptButotn->click();
+$acceptButton->click();
 sleep(10);
 $inputField = $driver->findElement(
     WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div.WFnNle > c-wiz > div.OlSOob > c-wiz > div.ccvoYb > div.AxqVh > div.OPPzxe > c-wiz.rm1UF.UnxENd > span > span > div > textarea')

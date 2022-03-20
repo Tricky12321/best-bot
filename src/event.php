@@ -27,6 +27,7 @@ class event
     public function calculateNext()
     {
         $now = (new DateTime("now"))->getTimestamp();
+        $now += 300; // Add 5 minutes to avoid duplicate messages
 
         $first = $this->first->getTimestamp();
         if ($first > $now) {

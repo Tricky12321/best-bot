@@ -14,12 +14,14 @@ RUN apt update && apt install -y \
 
 RUN mkdir /best-bot
 WORKDIR /best-bot
-
+RUN docker-php-ext-configure pcntl --enable-pcntl
 RUN docker-php-ext-install sockets
 RUN pecl install event
 RUN docker-php-ext-install zip
+RUN docker-php-ext-install pcntl
 RUN pecl install xdebug
 RUN docker-php-ext-enable xdebug
+RUN docker-php-ext-install shmop
 
 WORKDIR /parallel
 
@@ -32,10 +34,11 @@ RUN make test
 RUN make install
 
 RUN docker-php-ext-enable parallel
-
+COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 ADD vendor /best-bot/vendor
-
+ADD . /best-bot
+WORKDIR /best-bot
 VOLUME /best-bot/storage
 ADD src /best-bot/src
 CMD php src/main.php

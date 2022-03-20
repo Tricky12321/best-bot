@@ -1,1 +1,1 @@
-docker build . -t tvi/translate
+docker build . -t bestbot
