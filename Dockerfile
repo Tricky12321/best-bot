@@ -23,22 +23,10 @@ RUN pecl install xdebug
 RUN docker-php-ext-enable xdebug
 RUN docker-php-ext-install shmop
 
-WORKDIR /parallel
-
-RUN git clone https://github.com/krakjoe/parallel.git
-WORKDIR /parallel/parallel
-RUN phpize
-RUN ./configure --enable-parallel
-RUN make
-RUN make test
-RUN make install
-
-RUN docker-php-ext-enable parallel
 COPY --from=composer /usr/bin/composer /usr/bin/composer
-
-ADD vendor /best-bot/vendor
 ADD . /best-bot
 WORKDIR /best-bot
+RUN composer up
 VOLUME /best-bot/storage
 ADD src /best-bot/src
 CMD php src/main.php
