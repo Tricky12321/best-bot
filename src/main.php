@@ -125,57 +125,68 @@ $translatedMessages = [];
 $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reaction, Discord $discord) {
     $messageId = $reaction->message_id;
     $discord->getChannel($reaction->channel_id)->messages->fetch($messageId, true)->done(function (Message $message) use ($reaction) {
-        global $translatedMessages;
-        $emojiName = $reaction->emoji->name;
-        $messageText = $message->content;
-        $lang = "en";
-        switch ($emojiName) {
-            case "🇺🇸":
-            case "🇦🇺":
-            case "🏴󠁧󠁢󠁥󠁮󠁧󠁿":
-            case "🇬🇧":
-                echo "Detected English emoji\n";
-                $lang = "en";
-                break;
-            case "🇮🇹":
-                echo "Detected Italian emoji\n";
-                $lang = "it";
-                break;
-            case "🇷🇺":
-                echo "Detected Russian emoji\n";
-                $lang = "ru";
-                break;
-            case "🇪🇸":
-                echo "Detected Spanish emoji\n";
-                $lang = "es";
-                break;
-            case "🇩🇪":
-                echo "Detected German emoji\n";
-                $lang = "de";
-                break;
-            case "🇵🇹":
-                echo "Detected Portuguese emoji\n";
-                $lang = "pt";
-                break;
-            case "🇫🇷":
-                echo "Detected French emoji\n";
-                $lang = "fr";
-                break;
-        }
-        if (strlen($messageText) > 1950) {
-            $reaction->message->reply("This message is too long to be translated, sorry!");
-        } else {
-            if (!in_array("{$lang}{$reaction->message_id}", $translatedMessages)) {
-                $translatedMessages[] = "{$lang}{$reaction->message_id}";
-                $translation = new \Tricky\BestBot\message($messageText, $lang, $reaction->channel_id, $reaction->message_id);
-                // Lock inputStack and add the message to the input stack
-                $lock = Lock::getLock(INPUT_STACK_LOCK, true);
-                $inputStack = loadMessages(INPUT_FILE);
-                array_push($inputStack, $translation);
-                saveMessages(INPUT_FILE, $inputStack);
-                Lock::freeLock($lock);
+        try {
+            global $translatedMessages;
+            $emojiName = $reaction->emoji->name;
+            $messageText = $message->content;
+            $lang = "en";
+            switch ($emojiName) {
+                case "🇺🇸":
+                case "🇦🇺":
+                case "🏴󠁧󠁢󠁥󠁮󠁧󠁿":
+                case "🇬🇧":
+                    echo "Detected English emoji\n";
+                    $lang = "en";
+                    break;
+                case "🇮🇹":
+                    echo "Detected Italian emoji\n";
+                    $lang = "it";
+                    break;
+                case "🇷🇺":
+                    echo "Detected Russian emoji\n";
+                    $lang = "ru";
+                    break;
+                case "🇩🇰":
+                    echo "Detected danish emoji\n";
+                    $lang = "dk";
+                    break;
+                case "🇪🇸":
+                    echo "Detected Spanish emoji\n";
+                    $lang = "es";
+                    break;
+                case "🇩🇪":
+                    echo "Detected German emoji\n";
+                    $lang = "de";
+                    break;
+                case "🇵🇹":
+                    echo "Detected Portuguese emoji\n";
+                    $lang = "pt";
+                    break;
+                case "🇫🇷":
+                    echo "Detected French emoji\n";
+                    $lang = "fr";
+                    break;
             }
+            if (strlen($messageText) > 1950) {
+                $reaction->message->reply("This message is too long to be translated, sorry!");
+            } else {
+                if (!in_array("{$lang}{$reaction->message_id}", $translatedMessages)) {
+                    $translatedMessages[] = "{$lang}{$reaction->message_id}";
+                    $translation = new \Tricky\BestBot\message($messageText, $lang, $reaction->channel_id, $reaction->message_id);
+                    // Lock inputStack and add the message to the input stack
+                    $lock = Lock::getLock(INPUT_STACK_LOCK, true);
+                    $inputStack = loadMessages(INPUT_FILE);
+                    array_push($inputStack, $translation);
+                    saveMessages(INPUT_FILE, $inputStack);
+                    Lock::freeLock($lock);
+                }
+            }
+        } catch (Exception $e) {
+            $reaction->message->reply("An error happened trying to translate this message, please contact Tricky!");
+            echo "An exception happened, but in order to prevent a crash, i have not translated the following message: $e\n";
+            var_dump($e);
         }
+
     });
 });
 
@@ -225,37 +236,43 @@ function seleniumTranslatorRun()
 
 function loop()
 {
-    global $recuringEvents, $discord, $staticEvents;
-    $allEvents = array_merge($recuringEvents, $staticEvents);
-    echo "loop\n";
-    /** @var event $event */
-    foreach ($allEvents as $event) {
-        if (isset($event->nextPlay)) {
-            // If the current timestamp is greater than the NextPlay timestamp the message needs to be sent
-            $timeToNext = (new DateTime("now"))->getTimestamp() - $event->nextPlay->getTimestamp();
-            if ($timeToNext >= 0) {
-                echo "Sending message\n";
-                //784532360887664670 StateOfSurvivalPlayer
-                $message = MessageBuilder::new()->setContent($event->message);
-                $discord->getChannel($event->channel)->sendMessage($message)->done(function (Message $message) {
-                    echo "Message sent!\n";
-                });
-                $event->calculateNext();
+    try {
+        global $recuringEvents, $discord, $staticEvents;
+        $allEvents = array_merge($recuringEvents, $staticEvents);
+        echo "loop\n";
+        /** @var event $event */
+        foreach ($allEvents as $event) {
+            if (isset($event->nextPlay)) {
+                // If the current timestamp is greater than the NextPlay timestamp the message needs to be sent
+                $timeToNext = (new DateTime("now"))->getTimestamp() - $event->nextPlay->getTimestamp();
+                if ($timeToNext >= 0) {
+                    echo "Sending message\n";
+                    //784532360887664670 StateOfSurvivalPlayer
+                    $message = MessageBuilder::new()->setContent($event->message);
+                    $discord->getChannel($event->channel)->sendMessage($message)->done(function (Message $message) {
+                        echo "Message sent!\n";
+                    });
+                    $event->calculateNext();
+                }
             }
         }
-    }
-    $lock = Lock::getLock(OUTPUT_STACK_LOCK);
-    $output = loadMessages(OUTPUT_FILE);
-    // Clear the output!
-    saveMessages(OUTPUT_FILE, []);
+        $lock = Lock::getLock(OUTPUT_STACK_LOCK);
+        $output = loadMessages(OUTPUT_FILE);
+        // Clear the output!
+        saveMessages(OUTPUT_FILE, []);
 
-    Lock::freeLock($lock);
-    /** @var \Tricky\BestBot\message $message */
-    foreach ($output as $message) {
-        $discord->getChannel($message->channel_id)->messages->fetch($message->message_id)->done(function (Message $discordMessage) use ($message) {
-            $discordMessage->reply(MessageBuilder::new()->setContent("Translated message [{$message->translateToLang}]\n\n" . $message->translatedMessage));
-        });
+        Lock::freeLock($lock);
+        /** @var \Tricky\BestBot\message $message */
+        foreach ($output as $message) {
+            $discord->getChannel($message->channel_id)->messages->fetch($message->message_id)->done(function (Message $discordMessage) use ($message) {
+                $discordMessage->reply(MessageBuilder::new()->setContent("Translated message [{$message->translateToLang}]\n\n" . $message->translatedMessage));
+            });
+        }
+    } catch (Exception $exception) {
+        echo "Exception in Loop $exception";
+        var_dump($exception);
     }
+
 
 
 }
@@ -282,29 +299,30 @@ $help = [
 ];
 
 $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $discord) {
-    global $help, $staticEvents, $recuringEvents;
+    try {
+        global $help, $staticEvents, $recuringEvents;
 
-    $id = $message->author->id;
+        $id = $message->author->id;
 
-
-    // If not the bot continue, The bot does not take it's own meesages into account
-    if ($id != BOT_ID) {
-        $isModerator = false;
-        // Check if the user has the correct group
-        try {
-            $isModerator = $message->member->roles->has(MODERATOR_GROUP_ID);
-        } catch (Exception $exception) {
-
-        }
-        $isTricky = $message->author->id == TRICKY;
-        // Only look at commands that start with !bb (best bot command prefix)
         $isCommand = substr(strtolower($message->content), 0, 3) === "!bb";
-        // Sort the events by how long there is till the event needs to trigger
-        usort($recuringEvents, function ($a, $b) {
-            return event::cmp($a, $b);
-        });
-        // Only check commands
-        if ($isCommand) {
+
+        // If not the bot continue, The bot does not take it's own meesages into account
+        if ($id != BOT_ID && $isCommand) {
+            $isModerator = false;
+            // Check if the user has the correct group
+            try {
+                $isModerator = $message->member->roles->has(MODERATOR_GROUP_ID);
+            } catch (Exception $exception) {
+
+            }
+            $isTricky = $message->author->id == TRICKY;
+            // Only look at commands that start with !bb (best bot command prefix)
+            $isCommand = substr(strtolower($message->content), 0, 3) === "!bb";
+            // Sort the events by how long there is till the event needs to trigger
+            usort($recuringEvents, function ($a, $b) {
+                return event::cmp($a, $b);
+            });
+            // Only check commands
             $commands = explode(" ", strtolower($message->content));
             $arguments = count($commands);
             if ($isModerator) {
@@ -498,7 +516,12 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                 $message->reply("You are not authorised to execute the \"{$commands[1]}\" command!");
             }
         }
+    } catch (Exception $exception) {
+        echo "Exception in message: $exception";
+        var_dump($exception);
+        $message->reply("Error happened, please contact Tricky about it");
     }
+
 });
 
 function getDatetimeInterval($minutes)
