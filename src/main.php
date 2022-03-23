@@ -289,8 +289,13 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
 
     // If not the bot continue, The bot does not take it's own meesages into account
     if ($id != BOT_ID) {
+        $isModerator = false;
         // Check if the user has the correct group
-        $isModerator = $message->member->roles->has(MODERATOR_GROUP_ID);
+        try {
+            $isModerator = $message->member->roles->has(MODERATOR_GROUP_ID);
+        } catch (Exception $exception) {
+
+        }
         $isTricky = $message->author->id == TRICKY;
         // Only look at commands that start with !bb (best bot command prefix)
         $isCommand = substr(strtolower($message->content), 0, 3) === "!bb";
