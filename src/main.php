@@ -195,7 +195,6 @@ function seleniumTranslatorRun()
 {
     global $seleniumRunning;
     echo "\nNew thread is started and running\n";
-    $selenium = new seleniumWrapper();
     echo "Starting Selenium Looper\n";
     do {
         /** @var \Tricky\BestBot\message|null $elem */
@@ -212,13 +211,12 @@ function seleniumTranslatorRun()
         }
         Lock::freeLock($lock);
         // CRITICAL REGION [END]
-
+        $selenium = new seleniumWrapper();
         try {
             if ($elem != null) {
                 $selenium->getPage($elem->getTranslationUrl());
                 $elem->translatedMessage = $selenium->translate($elem->getOriginalMessage());
                 // Add the output to the outputStack
-
                 // CRITICAL REGION [START]
                 $lock = Lock::getLock(OUTPUT_STACK_LOCK, true);
                 $outputStack = loadMessages(OUTPUT_FILE);
@@ -239,6 +237,7 @@ function seleniumTranslatorRun()
             saveMessages(INPUT_FILE, $inputStack);
             Lock::freeLock($lock);
         }
+        $selenium->closeSelenium();
     } while ($seleniumRunning);
 }
 

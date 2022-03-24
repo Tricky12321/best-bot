@@ -7,6 +7,7 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
+use TypeError;
 
 class seleniumWrapper
 {
@@ -33,7 +34,6 @@ class seleniumWrapper
     }
 
     public function translate($text) {
-        $this->checkStatus();
         $inputField = $this->driver->findElement(
             WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div.WFnNle > c-wiz > div.OlSOob > c-wiz > div.ccvoYb > div.AxqVh > div.OPPzxe > c-wiz.rm1UF.UnxENd > span > span > div > textarea')
         );
@@ -49,21 +49,6 @@ class seleniumWrapper
         return $outputField->getText();
     }
 
-    public function checkStatus() {
-        try {
-            if (!$this->driver->getStatus()->isReady()) {
-                $this->createNewSeleniumEngine();
-                $this->first = true;
-                $this->getPage($this->url);
-            }
-        } catch (Exception $e) {
-            $this->createNewSeleniumEngine();
-            $this->first = true;
-            $this->getPage($this->url);
-        }
-        sleep(1);
-
-    }
 
     public function createNewSeleniumEngine() {
         echo "Starting Selenium browser\n";
@@ -71,5 +56,9 @@ class seleniumWrapper
         $this->driver = RemoteWebDriver::create($serverUrl, DesiredCapabilities::chrome());
         echo "Started Selenium Browser!\n";
         $this->first = true;
+    }
+
+    public function closeSelenium() {
+        $this->driver->close();
     }
 }
