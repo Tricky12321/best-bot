@@ -203,8 +203,6 @@ function seleniumTranslatorRun()
     do {
         /** @var \Tricky\BestBot\message|null $elem */
         $elem = null;
-
-
         // CRITICAL REGION [START]
         $lock = Lock::getLock(INPUT_STACK_LOCK, true);
         $inputStack = loadMessages(INPUT_FILE);
@@ -215,10 +213,10 @@ function seleniumTranslatorRun()
         }
         Lock::freeLock($lock);
         // CRITICAL REGION [END]
-        $selenium = new seleniumWrapper();
-        try {
-            var_dump($elem);
-            if ($elem != null) {
+        if ($elem != null) {
+            $selenium = new seleniumWrapper();
+            try {
+                var_dump($elem);
                 $selenium->getPage($elem->getTranslationUrl());
                 $elem->translatedMessage = $selenium->translate($elem->getOriginalMessage());
                 // Add the output to the outputStack
@@ -230,21 +228,21 @@ function seleniumTranslatorRun()
                 Lock::freeLock($lock);
                 // CRITICAL REGION [END]
                 sleep(1);
-            } else {
-                sleep(2);
-            }
-        } catch (Exception $e) {
-            echo "ERROR in translating message: {$elem->getOriginalMessage()}. Failed in selenium";
-            sleep(1);
-            $lock = Lock::getLock(INPUT_STACK_LOCK, true);
-            $inputStack = loadMessages(INPUT_FILE);
-            $inputStack[] = $elem;
-            saveMessages(INPUT_FILE, $inputStack);
-            Lock::freeLock($lock);
-        } catch (TypeError $e) {
 
-        } finally {
+            } catch (Exception $e) {
+                echo "ERROR in translating message: {$elem->getOriginalMessage()}. Failed in selenium";
+                sleep(1);
+                $lock = Lock::getLock(INPUT_STACK_LOCK, true);
+                $inputStack = loadMessages(INPUT_FILE);
+                $inputStack[] = $elem;
+                saveMessages(INPUT_FILE, $inputStack);
+                Lock::freeLock($lock);
+            } catch (TypeError $e) {
+
+            }
             $selenium->closeSelenium();
+        } else {
+            sleep(2);
         }
     } while ($seleniumRunning);
 }
