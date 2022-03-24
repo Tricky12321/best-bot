@@ -2,6 +2,7 @@
 
 namespace Tricky\BestBot;
 
+use Exception;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriver;
@@ -11,6 +12,7 @@ class seleniumWrapper
 {
     private RemoteWebDriver $driver;
     private $first = true;
+    private $url = "";
     public function __construct() {
         echo "Waiting 5 seconds to ensure selenium is started correctly\n";
         sleep(5);
@@ -19,7 +21,7 @@ class seleniumWrapper
 
     public function getPage($url) {
         $this->driver->get($url);
-
+        $this->url = $url;
         if ($this->first) {
             $acceptButton = $this->driver->findElement(
                 WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > form > div > div > button > span')
@@ -31,9 +33,7 @@ class seleniumWrapper
     }
 
     public function translate($text) {
-        if (!$this->driver->getStatus()->isReady()) {
-            $this->createNewSeleniumEngine();
-        }
+        $this->checkStatus();
         $inputField = $this->driver->findElement(
             WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div.WFnNle > c-wiz > div.OlSOob > c-wiz > div.ccvoYb > div.AxqVh > div.OPPzxe > c-wiz.rm1UF.UnxENd > span > span > div > textarea')
         );
@@ -47,6 +47,22 @@ class seleniumWrapper
             WebDriverBy::cssSelector(".J0lOec")
         );
         return $outputField->getText();
+    }
+
+    public function checkStatus() {
+        try {
+            if (!$this->driver->getStatus()->isReady()) {
+                $this->createNewSeleniumEngine();
+                $this->first = true;
+                $this->getPage($this->url);
+            }
+        } catch (Exception $e) {
+            $this->createNewSeleniumEngine();
+            $this->first = true;
+            $this->getPage($this->url);
+        }
+        sleep(1);
+
     }
 
     public function createNewSeleniumEngine() {
