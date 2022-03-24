@@ -205,6 +205,7 @@ function seleniumTranslatorRun()
         $lock = Lock::getLock(INPUT_STACK_LOCK, true);
         $inputStack = loadMessages(INPUT_FILE);
         echo "Count of input: " . count($inputStack) . "\n";
+        $elems = [];
         if (count($inputStack) > 0) {
             $elems = $inputStack;
             saveMessages(INPUT_FILE, []);
