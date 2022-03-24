@@ -239,6 +239,7 @@ function seleniumTranslatorRun()
             }
         }
         $selenium->closeSelenium();
+        sleep(10);
     } while ($seleniumRunning);
 }
 
