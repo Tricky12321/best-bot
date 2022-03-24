@@ -129,7 +129,7 @@ $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reac
             global $translatedMessages;
             $emojiName = $reaction->emoji->name;
             $messageText = $message->content;
-            $lang = "en";
+            $lang = "none";
             switch ($emojiName) {
                 case "🇺🇸":
                 case "🇦🇺":
@@ -167,18 +167,20 @@ $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reac
                     $lang = "fr";
                     break;
             }
-            if (strlen($messageText) > 1950) {
-                $reaction->message->reply("This message is too long to be translated, sorry!");
-            } else {
-                if (!in_array("{$lang}{$reaction->message_id}", $translatedMessages)) {
-                    $translatedMessages[] = "{$lang}{$reaction->message_id}";
-                    $translation = new \Tricky\BestBot\message($messageText, $lang, $reaction->channel_id, $reaction->message_id);
-                    // Lock inputStack and add the message to the input stack
-                    $lock = Lock::getLock(INPUT_STACK_LOCK, true);
-                    $inputStack = loadMessages(INPUT_FILE);
-                    array_push($inputStack, $translation);
-                    saveMessages(INPUT_FILE, $inputStack);
-                    Lock::freeLock($lock);
+            if ($lang != "none") {
+                if (strlen($messageText) > 1950) {
+                    $reaction->message->reply("This message is too long to be translated, sorry!");
+                } else {
+                    if (!in_array("{$lang}{$reaction->message_id}", $translatedMessages)) {
+                        $translatedMessages[] = "{$lang}{$reaction->message_id}";
+                        $translation = new \Tricky\BestBot\message($messageText, $lang, $reaction->channel_id, $reaction->message_id);
+                        // Lock inputStack and add the message to the input stack
+                        $lock = Lock::getLock(INPUT_STACK_LOCK, true);
+                        $inputStack = loadMessages(INPUT_FILE);
+                        array_push($inputStack, $translation);
+                        saveMessages(INPUT_FILE, $inputStack);
+                        Lock::freeLock($lock);
+                    }
                 }
             }
         } catch (Exception $e) {
