@@ -9,15 +9,12 @@ use Facebook\WebDriver\WebDriverBy;
 
 class seleniumWrapper
 {
-    private $driver;
+    private RemoteWebDriver $driver;
     private $first = true;
     public function __construct() {
         echo "Waiting 5 seconds to ensure selenium is started correctly\n";
         sleep(5);
-        echo "Starting Selenium browser\n";
-        $serverUrl = "http://selenium:4444";
-        $this->driver = RemoteWebDriver::create($serverUrl, DesiredCapabilities::chrome());
-        echo "Started Selenium Browser!\n";
+        $this->createNewSeleniumEngine();
     }
 
     public function getPage($url) {
@@ -34,6 +31,9 @@ class seleniumWrapper
     }
 
     public function translate($text) {
+        if (!$this->driver->getStatus()->isReady()) {
+            $this->createNewSeleniumEngine();
+        }
         $inputField = $this->driver->findElement(
             WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div.WFnNle > c-wiz > div.OlSOob > c-wiz > div.ccvoYb > div.AxqVh > div.OPPzxe > c-wiz.rm1UF.UnxENd > span > span > div > textarea')
         );
@@ -47,5 +47,13 @@ class seleniumWrapper
             WebDriverBy::cssSelector(".J0lOec")
         );
         return $outputField->getText();
+    }
+
+    public function createNewSeleniumEngine() {
+        echo "Starting Selenium browser\n";
+        $serverUrl = "http://selenium:4444";
+        $this->driver = RemoteWebDriver::create($serverUrl, DesiredCapabilities::chrome());
+        echo "Started Selenium Browser!\n";
+        $this->first = true;
     }
 }

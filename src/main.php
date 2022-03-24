@@ -148,7 +148,7 @@ $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reac
                     break;
                 case "🇩🇰":
                     echo "Detected danish emoji\n";
-                    $lang = "dk";
+                    $lang = "da";
                     break;
                 case "🇪🇸":
                     echo "Detected Spanish emoji\n";
@@ -236,7 +236,7 @@ function seleniumTranslatorRun()
             $lock = Lock::getLock(INPUT_STACK_LOCK, true);
             $inputStack = loadMessages(INPUT_FILE);
             $inputStack[] = $elem;
-            saveMessages(INPUT_FILE,$inputStack);
+            saveMessages(INPUT_FILE, $inputStack);
             Lock::freeLock($lock);
         }
     } while ($seleniumRunning);
@@ -273,15 +273,17 @@ function loop()
         Lock::freeLock($lock);
         /** @var \Tricky\BestBot\message $message */
         foreach ($output as $message) {
-            $discord->getChannel($message->channel_id)->messages->fetch($message->message_id)->done(function (Message $discordMessage) use ($message) {
-                $discordMessage->reply(MessageBuilder::new()->setContent("Translated message [{$message->translateToLang}]\n\n" . $message->translatedMessage));
-            });
+            if ($message->translatedMessage != $message->getOriginalMessage()) {
+                $discord->getChannel($message->channel_id)->messages->fetch($message->message_id)->done(function (Message $discordMessage) use ($message) {
+                    $discordMessage->reply(MessageBuilder::new()->setContent("Translated message [{$message->translateToLang}]\n\n" . $message->translatedMessage));
+                });
+            }
+
         }
     } catch (Exception $exception) {
         echo "Exception in Loop $exception";
         var_dump($exception);
     }
-
 
 
 }
