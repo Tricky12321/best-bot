@@ -212,34 +212,37 @@ function seleniumTranslatorRun()
         }
         Lock::freeLock($lock);
         // CRITICAL REGION [END]
-        $selenium = new seleniumWrapper();
-        /** @var \Tricky\BestBot\message $elem */
-        foreach ($elems as $elem) {
-            try {
-                var_dump($elem);
-                $selenium->getPage($elem->getTranslationUrl());
-                $elem->translatedMessage = $selenium->translate($elem->getOriginalMessage());
-                // Add the output to the outputStack
-                // CRITICAL REGION [START]
-                $lock = Lock::getLock(OUTPUT_STACK_LOCK, true);
-                $outputStack = loadMessages(OUTPUT_FILE);
-                array_push($outputStack, $elem);
-                saveMessages(OUTPUT_FILE, $outputStack);
-                Lock::freeLock($lock);
-                // CRITICAL REGION [END]
-                sleep(1);
-            } catch (Exception $e) {
-                echo "ERROR in translating message: {$elem->getOriginalMessage()}. Failed in selenium\n";
-                $lock = Lock::getLock(INPUT_STACK_LOCK, true);
-                $inputStack = loadMessages(INPUT_FILE);
-                $inputStack[] = $elem;
-                saveMessages(INPUT_FILE, $inputStack);
-                Lock::freeLock($lock);
-            } catch (TypeError $e) {
+        if (count($elems) > 0) {
+            $selenium = new seleniumWrapper();
+            /** @var \Tricky\BestBot\message $elem */
+            foreach ($elems as $elem) {
+                try {
+                    var_dump($elem);
+                    $selenium->getPage($elem->getTranslationUrl());
+                    $elem->translatedMessage = $selenium->translate($elem->getOriginalMessage());
+                    // Add the output to the outputStack
+                    // CRITICAL REGION [START]
+                    $lock = Lock::getLock(OUTPUT_STACK_LOCK, true);
+                    $outputStack = loadMessages(OUTPUT_FILE);
+                    array_push($outputStack, $elem);
+                    saveMessages(OUTPUT_FILE, $outputStack);
+                    Lock::freeLock($lock);
+                    // CRITICAL REGION [END]
+                    sleep(1);
+                } catch (Exception $e) {
+                    echo "ERROR in translating message: {$elem->getOriginalMessage()}. Failed in selenium\n";
+                    $lock = Lock::getLock(INPUT_STACK_LOCK, true);
+                    $inputStack = loadMessages(INPUT_FILE);
+                    $inputStack[] = $elem;
+                    saveMessages(INPUT_FILE, $inputStack);
+                    Lock::freeLock($lock);
+                } catch (TypeError $e) {
 
+                }
             }
+            $selenium->closeSelenium();
         }
-        $selenium->closeSelenium();
+
         sleep(10);
     } while ($seleniumRunning);
 }
