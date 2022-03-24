@@ -215,10 +215,10 @@ function seleniumTranslatorRun()
         }
         Lock::freeLock($lock);
         // CRITICAL REGION [END]
+        $selenium = new seleniumWrapper();
         try {
             var_dump($elem);
             if ($elem != null) {
-                $selenium = new seleniumWrapper();
                 $selenium->getPage($elem->getTranslationUrl());
                 $elem->translatedMessage = $selenium->translate($elem->getOriginalMessage());
                 // Add the output to the outputStack
