@@ -201,20 +201,19 @@ function seleniumTranslatorRun()
     echo "Assuming selenium is started\n";
 
     do {
-        /** @var \Tricky\BestBot\message|null $elem */
-        $elem = null;
         // CRITICAL REGION [START]
         $lock = Lock::getLock(INPUT_STACK_LOCK, true);
         $inputStack = loadMessages(INPUT_FILE);
         echo "Count of input: " . count($inputStack) . "\n";
         if (count($inputStack) > 0) {
-            $elem = array_shift($inputStack);
-            saveMessages(INPUT_FILE, $inputStack);
+            $elems = $inputStack;
+            saveMessages(INPUT_FILE, []);
         }
         Lock::freeLock($lock);
         // CRITICAL REGION [END]
-        if ($elem != null) {
-            $selenium = new seleniumWrapper();
+        $selenium = new seleniumWrapper();
+        /** @var \Tricky\BestBot\message $elem */
+        foreach ($elems as $elem) {
             try {
                 var_dump($elem);
                 $selenium->getPage($elem->getTranslationUrl());
@@ -228,10 +227,8 @@ function seleniumTranslatorRun()
                 Lock::freeLock($lock);
                 // CRITICAL REGION [END]
                 sleep(1);
-
             } catch (Exception $e) {
-                echo "ERROR in translating message: {$elem->getOriginalMessage()}. Failed in selenium";
-                sleep(1);
+                echo "ERROR in translating message: {$elem->getOriginalMessage()}. Failed in selenium\n";
                 $lock = Lock::getLock(INPUT_STACK_LOCK, true);
                 $inputStack = loadMessages(INPUT_FILE);
                 $inputStack[] = $elem;
@@ -240,10 +237,8 @@ function seleniumTranslatorRun()
             } catch (TypeError $e) {
 
             }
-            $selenium->closeSelenium();
-        } else {
-            sleep(2);
         }
+        $selenium->closeSelenium();
     } while ($seleniumRunning);
 }
 
