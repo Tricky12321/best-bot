@@ -57,6 +57,6 @@ class seleniumWrapper
     }
 
     public function closeSelenium() {
-        $this->driver->close();
+        $this->driver->quit();
     }
 }
