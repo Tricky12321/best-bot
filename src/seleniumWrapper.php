@@ -15,8 +15,6 @@ class seleniumWrapper
     private $first = true;
     private $url = "";
     public function __construct() {
-        echo "Waiting 5 seconds to ensure selenium is started correctly\n";
-        sleep(5);
         $this->createNewSeleniumEngine();
     }
 

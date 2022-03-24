@@ -196,6 +196,10 @@ function seleniumTranslatorRun()
     global $seleniumRunning;
     echo "\nNew thread is started and running\n";
     echo "Starting Selenium Looper\n";
+    echo "Waiting for selenium to start\n";
+    sleep(5);
+    echo "Assuming selenium is started\n";
+
     do {
         /** @var \Tricky\BestBot\message|null $elem */
         $elem = null;
