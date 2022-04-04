@@ -28,7 +28,6 @@ class seleniumWrapper
                 WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > form > div > div > button > span')
             );
             $acceptButton->click();
-            sleep(2);
             $this->first = false;
         }
     }

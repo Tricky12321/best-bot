@@ -217,7 +217,7 @@ function seleniumTranslatorRun()
             // CRITICAL REGION [END]
 
         } else {
-            sleep(2);
+            usleep(500);
         }
     } while ($seleniumRunning);
 }
