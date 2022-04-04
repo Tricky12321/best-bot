@@ -245,7 +245,7 @@ function seleniumTranslatorRun()
             $selenium->closeSelenium();
         }
 
-        sleep(10);
+        usleep(500);
     } while ($seleniumRunning);
 }
 
