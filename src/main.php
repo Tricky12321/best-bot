@@ -367,18 +367,16 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         if ($commands[2] == "stop" && isset($autotranslateChannels[$message->channel_id])) {
                             unset($autotranslateChannels[$message->channel_id]);
                             $message->reply("Disabled autotranslate for this channel");
-                            $executed = true;
                         } elseif (!in_array($message->channel_id, $autotranslateChannels)) {
-                            $time = explode(":", $commands[3]);
+                            $time = explode(":", $commands[2]);
                             $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
                             $eventNow = (new DateTime("now"))->add(getDatetimeInterval($minutes));
                             $autotranslateChannels[$message->channel_id] = $eventNow->getTimestamp();
                             $message->reply("Autotranslate enabled for {$time[0]} days, {$time[1]} hours and {$time[2]} minutes");
-                            $executed = true;
                         } else {
                             $message->reply("Autotranslate is already enabled for this channel, use \"!bb autotranslate stop\" to stop autotransalte");
-                            $executed = true;
                         }
+                        $executed = true;
                         break;
                 }
             }
