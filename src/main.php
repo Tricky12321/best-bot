@@ -364,8 +364,12 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                     case "autotranslate":
                     case "at":
                         if ($commands[2] == "stop") {
-                            unset($autotranslateChannels[$message->channel_id]);
-                            $message->reply("Disabled autotranslate for this channel");
+                            if (isset($autotranslateChannels[$message->channel_id])) {
+                                unset($autotranslateChannels[$message->channel_id]);
+                                $message->reply("Disabled autotranslate for this channel");
+                            } else {
+                                $message->reply("Autotranslate is not enabled for this channel");
+                            }
                         } elseif (!in_array($message->channel_id, $autotranslateChannels)) {
                             $time = explode(":", $commands[2]);
                             $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
