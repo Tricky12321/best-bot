@@ -359,27 +359,30 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
             // Only check commands
             $commands = explode(" ", strtolower($message->content));
             $arguments = count($commands);
+            $executed = false;
             if ($isWFDAdmin || $isTricky || $isModerator) {
                 switch ($commands[1]) {
                     case "autotranslate":
                     case "at":
-                        if ($commands[2] != "stop") {
+                        if ($commands[2] == "stop" && isset($autotranslateChannels[$message->channel_id])) {
                             unset($autotranslateChannels[$message->channel_id]);
                             $message->reply("Disabled autotranslate for this channel");
-                        } elseif (!in_array($message->channel_id, $autotranslateChannels) && $commands[2] != "stop") {
+                            $executed = true;
+                        } elseif (!in_array($message->channel_id, $autotranslateChannels)) {
                             $time = explode(":", $commands[3]);
                             $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
                             $eventNow = (new DateTime("now"))->add(getDatetimeInterval($minutes));
                             $autotranslateChannels[$message->channel_id] = $eventNow->getTimestamp();
                             $message->reply("Autotranslate enabled for {$time[0]} days, {$time[1]} hours and {$time[2]} minutes");
+                            $executed = true;
                         } else {
-                            $message->reply("Autotranslate is already enabled for this channel, use !bb autotranslate stop to stop autotransalte");
+                            $message->reply("Autotranslate is already enabled for this channel, use \"!bb autotranslate stop\" to stop autotransalte");
+                            $executed = true;
                         }
-
                         break;
                 }
             }
-            if ($isModerator) {
+            if ($isModerator && !$executed) {
                 switch ($commands[1]) {
                     case "help":
                         $message->reply(implode("\n", $help));
