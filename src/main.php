@@ -26,6 +26,7 @@ const OUTPUT_FILE = ".output";
 // ----------------------------------------------------------------
 const BOT_ID = "872546787360137246";
 const MODERATOR_GROUP_ID = "737730859951718402";
+const WFD_ADMIN_GROUP_ID = "775121477200248853";
 const CHANNEL_ID = "886218298516209664";
 const PLAYER = "784532360887664670";
 const TRICKY = "157579105846558720";
@@ -81,6 +82,9 @@ $staticEvents = [];
 
 $eventFile = __DIR__ . "/storage/events.txt";
 
+$langs = ["en", "it", "ru", "da", "es", "de", "pt", "fr"];
+
+$autotranslateChannels = [];
 function loadEvents()
 {
     global $staticEvents, $eventFile;
@@ -123,6 +127,7 @@ $discord->on("ready", function (Discord $discord) {
 $translatedMessages = [];
 
 $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reaction, Discord $discord) {
+    global $autotranslateChannels;
     $messageId = $reaction->message_id;
     $discord->getChannel($reaction->channel_id)->messages->fetch($messageId, true)->done(function (Message $message) use ($reaction) {
         try {
@@ -147,7 +152,7 @@ $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reac
                     $lang = "ru";
                     break;
                 case "🇩🇰":
-                    echo "Detected danish emoji\n";
+                    echo "Detected Danish emoji\n";
                     $lang = "da";
                     break;
                 case "🇪🇸":
@@ -245,7 +250,7 @@ function seleniumTranslatorRun()
             $selenium->closeSelenium();
         }
 
-        usleep(500);
+        sleep(1);
     } while ($seleniumRunning);
 }
 
@@ -253,7 +258,7 @@ function seleniumTranslatorRun()
 function loop()
 {
     try {
-        global $recuringEvents, $discord, $staticEvents;
+        global $recuringEvents, $discord, $staticEvents, $autotranslateChannels;
         $allEvents = array_merge($recuringEvents, $staticEvents);
         echo "loop\n";
         /** @var event $event */
@@ -278,6 +283,7 @@ function loop()
         saveMessages(OUTPUT_FILE, []);
 
         Lock::freeLock($lock);
+
         /** @var \Tricky\BestBot\message $message */
         foreach ($output as $message) {
             if ($message->translatedMessage != $message->getOriginalMessage()) {
@@ -285,8 +291,16 @@ function loop()
                     $discordMessage->reply(MessageBuilder::new()->setContent("Translated message [{$message->translateToLang}]\n\n" . $message->translatedMessage));
                 });
             }
-
         }
+
+        $keepTranslatingChannels = [];
+        $now = new DateTime("now");
+        foreach ($autotranslateChannels as $channel => $timestamp) {
+            if ($timestamp > $now->getTimestamp()) {
+                $keepTranslatingChannels[$channel] = $timestamp;
+            }
+        }
+        $autotranslateChannels = $keepTranslatingChannels;
     } catch (Exception $exception) {
         echo "Exception in Loop $exception";
         var_dump($exception);
@@ -314,15 +328,16 @@ $help = [
     " - See full list of upcomming recurring events",
     "!bb staticevents",
     " - See full list of upcomming static events",
+    "!bb autotranslate {Time until start, ex: 3:1:45 = 3 days, 1 hour and 45 minutes} | stop",
 ];
 
 $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $discord) {
     try {
-        global $help, $staticEvents, $recuringEvents;
+        global $help, $staticEvents, $recuringEvents, $autotranslateChannels, $langs, $translatedMessages;
 
         $id = $message->author->id;
 
-        $isCommand = substr(strtolower($message->content), 0, 3) === "!bb";
+        $isCommand = str_starts_with(strtolower($message->content), "!bb");
 
         // If not the bot continue, The bot does not take it's own meesages into account
         if ($id != BOT_ID && $isCommand) {
@@ -330,6 +345,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
             // Check if the user has the correct group
             try {
                 $isModerator = $message->member->roles->has(MODERATOR_GROUP_ID);
+                $isWFDAdmin = $message->member->roles->has(WFD_ADMIN_GROUP_ID);
             } catch (Exception $exception) {
 
             }
@@ -343,6 +359,26 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
             // Only check commands
             $commands = explode(" ", strtolower($message->content));
             $arguments = count($commands);
+            if ($isWFDAdmin || $isTricky || $isModerator) {
+                switch ($commands[1]) {
+                    case "autotranslate":
+                    case "at":
+                        if ($commands[2] != "stop") {
+                            unset($autotranslateChannels[$message->channel_id]);
+                            $message->reply("Disabled autotranslate for this channel");
+                        } elseif (!in_array($message->channel_id, $autotranslateChannels) && $commands[2] != "stop") {
+                            $time = explode(":", $commands[3]);
+                            $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
+                            $eventNow = (new DateTime("now"))->add(getDatetimeInterval($minutes));
+                            $autotranslateChannels[$message->channel_id] = $eventNow->getTimestamp();
+                            $message->reply("Autotranslate enabled for {$time[0]} days, {$time[1]} hours and {$time[2]} minutes");
+                        } else {
+                            $message->reply("Autotranslate is already enabled for this channel, use !bb autotranslate stop to stop autotransalte");
+                        }
+
+                        break;
+                }
+            }
             if ($isModerator) {
                 switch ($commands[1]) {
                     case "help":
@@ -533,6 +569,28 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
             } else {
                 $message->reply("You are not authorised to execute the \"{$commands[1]}\" command!");
             }
+        }
+        $now = new DateTime("now");
+        if (!$isCommand && in_array($message->channel_id, $autotranslateChannels) && $autotranslateChannels[$message->channel_id] > $now->getTimestamp()) {
+            $translations = [];
+            foreach ($langs as $lang) {
+                if (!in_array("{$lang}{$message->id}", $translatedMessages)) {
+                    $translatedMessages[] = "{$lang}{$message->id}";
+                    $translations[] = new \Tricky\BestBot\message($message->content, $lang, $message->channel_id, $message->id);
+                }
+            }
+            if (count($translations) > 0) {
+                // Lock inputStack and add the message to the input stack
+                $lock = Lock::getLock(INPUT_STACK_LOCK, true);
+                $inputStack = loadMessages(INPUT_FILE);
+                foreach ($translations as $translation) {
+                    array_push($inputStack, $translation);
+                }
+
+                saveMessages(INPUT_FILE, $inputStack);
+                Lock::freeLock($lock);
+            }
+
         }
     } catch (Exception $exception) {
         echo "Exception in message: $exception";
