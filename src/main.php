@@ -351,7 +351,6 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
             }
             $isTricky = $message->author->id == TRICKY;
             // Only look at commands that start with !bb (best bot command prefix)
-            $isCommand = substr(strtolower($message->content), 0, 3) === "!bb";
             // Sort the events by how long there is till the event needs to trigger
             usort($recuringEvents, function ($a, $b) {
                 return event::cmp($a, $b);
@@ -370,11 +369,13 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         } elseif (!in_array($message->channel_id, $autotranslateChannels)) {
                             $time = explode(":", $commands[2]);
                             $minutes = ((int)$time[0] * 60 * 24) + ((int)$time[1] * 60) + (int)$time[2];
+                            echo "Minutes set to {$minutes}\n";
                             $eventNow = (new DateTime("now"))->add(getDatetimeInterval($minutes));
                             $autotranslateChannels[$message->channel_id] = $eventNow->getTimestamp();
+                            echo "Autotranslate for {$message->channel_id} until {$eventNow->getTimestamp()}\n";
                             $message->reply("Autotranslate enabled for {$time[0]} days, {$time[1]} hours and {$time[2]} minutes");
                         } else {
-                            $message->reply("Autotranslate is already enabled for this channel, use \"!bb autotranslate stop\" to stop autotransalte");
+                            $message->reply("Autotranslate is already enabled for this channel, use \"!bb autotranslate stop\" to stop autotranslate");
                         }
                         $executed = true;
                         break;
@@ -568,11 +569,14 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                         break;
                 }
             } else {
-                $message->reply("You are not authorised to execute the \"{$commands[1]}\" command!");
+                if (!$executed) {
+                    $message->reply("You are not authorised to execute the \"{$commands[1]}\" command!");
+                }
             }
         }
         $now = new DateTime("now");
         if (!$isCommand && in_array($message->channel_id, $autotranslateChannels) && $autotranslateChannels[$message->channel_id] > $now->getTimestamp()) {
+            echo "Found message that need to be autotranslated\n";
             $translations = [];
             foreach ($langs as $lang) {
                 if (!in_array("{$lang}{$message->id}", $translatedMessages)) {
@@ -591,7 +595,6 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                 saveMessages(INPUT_FILE, $inputStack);
                 Lock::freeLock($lock);
             }
-
         }
     } catch (Exception $exception) {
         echo "Exception in message: $exception";
