@@ -363,7 +363,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                 switch ($commands[1]) {
                     case "autotranslate":
                     case "at":
-                        if ($commands[2] == "stop" && isset($autotranslateChannels[$message->channel_id])) {
+                        if ($commands[2] == "stop") {
                             unset($autotranslateChannels[$message->channel_id]);
                             $message->reply("Disabled autotranslate for this channel");
                         } elseif (!in_array($message->channel_id, $autotranslateChannels)) {
