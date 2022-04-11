@@ -574,7 +574,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
                 }
             }
         }
-        if (!$isCommand && in_array($message->channel_id, $autotranslateChannels)) {
+        if (!$isCommand && in_array($message->channel_id, array_keys($autotranslateChannels))) {
             echo "Found message that need to be autotranslated\n";
             $translations = [];
             foreach ($langs as $lang) {
