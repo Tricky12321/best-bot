@@ -45,9 +45,9 @@ class seleniumWrapper
             WebDriverBy::cssSelector(".J0lOec")
         );
 
-        return preg_replace_callback("/<@[0-9 ]+>/",function($match){
+        return preg_replace_callback("/<@?.*&?.*[0-9]+>/",function($match){
             return str_replace(" ", "",$match[0]);
-        },$outputField->getText());;
+        },$outputField->getText());
     }
 
 
