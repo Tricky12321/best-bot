@@ -55,6 +55,7 @@ class seleniumWrapper
         echo "Starting Selenium browser\n";
         $serverUrl = "http://selenium:4444";
         $this->driver = RemoteWebDriver::create($serverUrl, DesiredCapabilities::chrome());
+        sleep(3);
         echo "Started Selenium Browser!\n";
         $this->first = true;
     }
