@@ -29,6 +29,7 @@ class seleniumWrapper
             sleep(2);
             $this->first = false;
         }
+        sleep(1);
     }
 
     public function translate($text) {
@@ -58,6 +59,7 @@ class seleniumWrapper
         sleep(3);
         echo "Started Selenium Browser!\n";
         $this->first = true;
+        sleep(1);
     }
 
     public function closeSelenium() {

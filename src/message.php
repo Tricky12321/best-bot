@@ -10,19 +10,22 @@ class message
     public $channel_id;
     public $message_id;
 
-    public function __construct($originalMessage, $translateToLang, $channel_id, $message_id) {
+    public function __construct($originalMessage, $translateToLang, $channel_id, $message_id, $autoTranslate = false)
+    {
         $this->originalMessage = $originalMessage;
         $this->translateToLang = $translateToLang;
         $this->channel_id = $channel_id;
         $this->message_id = $message_id;
     }
 
-    public function setTranslated($message) {
+    public function setTranslated($message)
+    {
         $this->translatedMessage = $message;
     }
 
-    public function getTranslationUrl() {
-        return "https://translate.google.com/?sl=auto&tl=".$this->translateToLang."&op=translate";
+    public function getTranslationUrl()
+    {
+        return "https://translate.google.com/?sl=auto&tl=" . $this->translateToLang . "&op=translate";
     }
 
     function remove_emoji($string)
@@ -58,7 +61,8 @@ class message
         return $clear_string;
     }
 
-    public function getOriginalMessage() {
+    public function getOriginalMessage()
+    {
         return $this->remove_emoji($this->originalMessage);
     }
 }

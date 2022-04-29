@@ -226,7 +226,7 @@ function seleniumTranslatorRun()
                 try {
                     var_dump($elem);
                     $selenium->getPage($elem->getTranslationUrl());
-                    $elem->translatedMessage = $selenium->translate($elem->getOriginalMessage());
+                    $elem->setTranslated($selenium->translate($elem->getOriginalMessage(),);
                     // Add the output to the outputStack
                     // CRITICAL REGION [START]
                     $lock = Lock::getLock(OUTPUT_STACK_LOCK, true);
@@ -584,7 +584,7 @@ $discord->on(DiscordEvent::MESSAGE_CREATE, function (Message $message, Discord $
             foreach ($langs as $lang) {
                 if (!in_array("{$lang}{$message->id}", $translatedMessages)) {
                     $translatedMessages[] = "{$lang}{$message->id}";
-                    $translations[] = new \Tricky\BestBot\message($message->content, $lang, $message->channel_id, $message->id);
+                    $translations[] = new \Tricky\BestBot\message($message->content, $lang, $message->channel_id, $message->id, true);
                 }
             }
             if (count($translations) > 0) {
