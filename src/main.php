@@ -226,7 +226,7 @@ function seleniumTranslatorRun()
                 try {
                     var_dump($elem);
                     $selenium->getPage($elem->getTranslationUrl());
-                    $elem->setTranslated($selenium->translate($elem->getOriginalMessage(),);
+                    $elem->setTranslated($selenium->translate($elem->getOriginalMessage()));
                     // Add the output to the outputStack
                     // CRITICAL REGION [START]
                     $lock = Lock::getLock(OUTPUT_STACK_LOCK, true);
