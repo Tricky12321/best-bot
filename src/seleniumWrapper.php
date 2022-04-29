@@ -21,19 +21,23 @@ class seleniumWrapper
     public function getPage($url) {
         $this->driver->get($url);
         $this->url = $url;
-        if ($this->first) {
-            $acceptButton = $this->driver->findElement(
-                WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > form > div > div > button > span')
-            );
-            $acceptButton->click();
-            sleep(2);
-            $this->first = false;
+        try {
+            if ($this->first) {
+                $acceptButton = $this->driver->findElement(
+                    WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > form > div > div > button > span')
+                );
+                $acceptButton->click();
+                sleep(2);
+                $this->first = false;
+            }
+        } catch (Exception $e) {
+
         }
+
         sleep(1);
     }
     public function translate($text) {
         $inputField = $this->driver->findElement(
-
             WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div.WFnNle > c-wiz > div.OlSOob > c-wiz > div.ccvoYb.EjH7wc > div.AxqVh > div.OPPzxe > c-wiz.rm1UF.UnxENd > span > span > div > textarea')
         );
         $inputField->sendKeys($text." ");
