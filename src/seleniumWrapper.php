@@ -31,12 +31,12 @@ class seleniumWrapper
         }
         sleep(1);
     }
-
     public function translate($text) {
         $inputField = $this->driver->findElement(
-            WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div.WFnNle > c-wiz > div.OlSOob > c-wiz > div.ccvoYb > div.AxqVh > div.OPPzxe > c-wiz.rm1UF.UnxENd > span > span > div > textarea')
+
+            WebDriverBy::cssSelector('#yDmH0d > c-wiz > div > div.WFnNle > c-wiz > div.OlSOob > c-wiz > div.ccvoYb.EjH7wc > div.AxqVh > div.OPPzxe > c-wiz.rm1UF.UnxENd > span > span > div > textarea')
         );
-        $inputField->sendKeys($text);
+        $inputField->sendKeys($text." ");
         sleep(1);
         $this->driver->wait()->until(function() {
            $elements = $this->driver->findElements(WebDriverBy::cssSelector(".J0lOec"));
