@@ -14,7 +14,7 @@ use Discord\WebSockets\Intents;
 use React\EventLoop\Loop;
 use Tricky\BestBot\event;
 use Tricky\BestBot\Lock;
-use Tricky\BestBot\seleniumWrapper;
+use Tricky\BestBot\chromiumWrapper;
 
 // ----------------------------------------------------------------
 const INPUT_STACK_LOCK = "BB_INPUT_STACK_LOCK";
@@ -202,11 +202,8 @@ function seleniumTranslatorRun()
 {
     global $seleniumRunning;
     echo "\nNew thread is started and running\n";
-    echo "Starting Selenium Looper\n";
-    echo "Waiting for selenium to start\n";
-    sleep(5);
-    echo "Assuming selenium is started\n";
-
+    $chromiumWrapper = new chromiumWrapper();
+    echo "Starting chromium browser\n";
     do {
         // CRITICAL REGION [START]
         $lock = Lock::getLock(INPUT_STACK_LOCK, true);
@@ -220,13 +217,12 @@ function seleniumTranslatorRun()
         Lock::freeLock($lock);
         // CRITICAL REGION [END]
         if (count($elems) > 0) {
-            $selenium = new seleniumWrapper();
             /** @var \Tricky\BestBot\message $elem */
             foreach ($elems as $elem) {
                 try {
                     var_dump($elem);
-                    $selenium->getPage($elem->getTranslationUrl());
-                    $elem->setTranslated($selenium->translate($elem->getOriginalMessage()));
+                    $chromiumWrapper->getPage($elem->getTranslationUrl());
+                    $elem->setTranslated($chromiumWrapper->translate($elem->getOriginalMessage()));
                     // Add the output to the outputStack
                     // CRITICAL REGION [START]
                     $lock = Lock::getLock(OUTPUT_STACK_LOCK, true);
@@ -247,9 +243,7 @@ function seleniumTranslatorRun()
 
                 }
             }
-            $selenium->closeSelenium();
         }
-
         sleep(1);
     } while ($seleniumRunning);
 }

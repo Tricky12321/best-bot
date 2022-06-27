@@ -1,7 +1,6 @@
 FROM php:8.0-zts
 
 RUN apt update && apt install -y \
-    htop \
     zsh \
     vim \
     git \
@@ -10,7 +9,8 @@ RUN apt update && apt install -y \
     zip \
     libzip-dev \
     procps \
-    dlang-libevent
+    dlang-libevent \
+    chromium
 
 RUN mkdir /best-bot
 WORKDIR /best-bot
@@ -29,4 +29,5 @@ WORKDIR /best-bot
 RUN composer up
 VOLUME /best-bot/storage
 ADD src /best-bot/src
+RUN mkdir -p /screenshots
 CMD php src/main.php
