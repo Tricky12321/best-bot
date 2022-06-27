@@ -1,12 +1,5 @@
 version: "3.9"
 services:
-  selenium:
-    image: selenium/standalone-chrome:latest
-    restart: always
-    shm_size: '3gb'
-    ports:
-      - "4444:4444"
-      - "7900:7900"
   php:
     platform: linux/amd64
     image: bestbot

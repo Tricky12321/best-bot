@@ -14,7 +14,7 @@ use Discord\WebSockets\Intents;
 use React\EventLoop\Loop;
 use Tricky\BestBot\event;
 use Tricky\BestBot\Lock;
-use Tricky\BestBot\seleniumWrapper;
+use Tricky\BestBot\chromiumWrapper;
 
 // ----------------------------------------------------------------
 const INPUT_STACK_LOCK = "BB_INPUT_STACK_LOCK";
@@ -163,7 +163,7 @@ $discord->on(DiscordEvent::MESSAGE_REACTION_ADD, function (MessageReaction $reac
                 break;
         }
         if (strlen($messageText) > 1950) {
-            $reaction->message->reply("This message is too long to be translated, sorry!");
+            $reaction->message->reply("This message is too long to be translated, unfortunately discord only allows bots to read messages less than 2000 chars, sorry!");
         } else {
             if (!in_array("{$lang}{$reaction->message_id}", $translatedMessages)) {
                 $translatedMessages[] = "{$lang}{$reaction->message_id}";
@@ -184,7 +184,7 @@ function seleniumTranslatorRun()
 {
     global $seleniumRunning;
     echo "\nNew thread is started and running\n";
-    $selenium = new seleniumWrapper();
+    $selenium = new chromiumWrapper();
     echo "Starting Selenium Looper\n";
     do {
         /** @var \Tricky\BestBot\message|null $elem */
@@ -217,7 +217,7 @@ function seleniumTranslatorRun()
             // CRITICAL REGION [END]
 
         } else {
-            usleep(500);
+            usleep(1000000);
         }
     } while ($seleniumRunning);
 }

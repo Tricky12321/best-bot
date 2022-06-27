@@ -8,7 +8,8 @@
     "php-webdriver/webdriver": "^1.12",
     "ext-mbstring": "*",
     "ext-pcntl": "*",
-    "ext-shmop": "*"
+    "ext-shmop": "*",
+    "chrome-php/chrome": "^1.6"
   },
   "autoload": {
     "psr-4": {
