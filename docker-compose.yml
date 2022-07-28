@@ -1,10 +1,4 @@
 version: "3.9"
 services:
   php:
-    platform: linux/amd64
     image: bestbot
-    links:
-      - selenium
-    depends_on:
-      - selenium
-
