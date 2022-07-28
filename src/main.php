@@ -8,6 +8,8 @@ use Discord\Parts\Channel\Channel;
 use Discord\Parts\Channel\Message;
 use Discord\Parts\Channel\Reaction;
 use Discord\Parts\Guild\Guild;
+use Discord\Parts\User\Member;
+use Discord\Parts\User\User;
 use Discord\Parts\WebSockets\MessageReaction;
 use Discord\WebSockets\Event as DiscordEvent;
 use Discord\WebSockets\Intents;
@@ -248,9 +250,20 @@ function seleniumTranslatorRun()
     } while ($seleniumRunning);
 }
 
+function annikaProtection()
+{
+    global $discord;
+    $discord->guilds->fetch("736201684510048267")->done(function (Guild $guild) {
+        $guild->members->fetch(BOT_ID)->done(function (Member $user) {
+            $user->setNickname("Best-Bot");
+        });
+    });
+}
+
 
 function loop()
 {
+    annikaProtection();
     try {
         global $recuringEvents, $discord, $staticEvents, $autotranslateChannels;
         $allEvents = array_merge($recuringEvents, $staticEvents);
